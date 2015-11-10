@@ -24,11 +24,7 @@ feature {NONE} -- Initialization
 	make
 		-- Create IMAP session with default address and ports
 		do
-			create network.make_with_address_and_port(Default_address, Default_port)
-			current_tag_number := 0
-			current_tag := Tag_prefix + "0"
-			last_response_received := -1
-			create response_mgr.make_with_network (network)
+			make_with_address_and_port(Default_address, Default_port)
 		ensure
 			network /= Void
 			response_mgr /= Void
@@ -38,11 +34,7 @@ feature {NONE} -- Initialization
 	make_ssl
 		-- Create SSL IMAP session with default address and ports
 		do
-			network := create {IL_SSL_NETWORK}.make_with_address_and_port(Default_address, Default_ssl_port)
-			current_tag_number := 0
-			current_tag := Tag_prefix + "0"
-			last_response_received := -1
-			create response_mgr.make_with_network (network)
+			make_ssl_with_address_and_port(Default_address, Default_ssl_port)
 		ensure
 			network /= Void
 			response_mgr /= Void
@@ -53,11 +45,7 @@ feature {NONE} -- Initialization
 		require
 			address_not_void: a_address /= void
 		do
-			create network.make_with_address_and_port(a_address, Default_port)
-			current_tag_number := 0
-			current_tag := Tag_prefix + "0"
-			last_response_received := -1
-			create response_mgr.make_with_network (network)
+			make_with_address_and_port(a_address, Default_port)
 		ensure
 			network /= Void
 			response_mgr /= Void
@@ -84,11 +72,7 @@ feature {NONE} -- Initialization
 		require
 			address_not_void: a_address /= void
 		do
-			network := create {IL_SSL_NETWORK}.make_with_address_and_port(a_address, Default_ssl_port)
-			current_tag_number := 0
-			current_tag := Tag_prefix + "0"
-			last_response_received := -1
-			create response_mgr.make_with_network (network)
+			make_ssl_with_address_and_port(a_address, Default_ssl_port)
 		ensure
 			network /= Void
 			response_mgr /= Void
