@@ -1,3 +1,7 @@
 *~
 *.swp
+<<<<<<< HEAD
 client/EIFGENs
+=======
+imaplib/EIFGENs
+>>>>>>> f290a6235010986707d1113d33ac9ef01a53ff6a
