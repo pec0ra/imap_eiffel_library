@@ -40,7 +40,20 @@ feature -- Basic operations
 			Result := parser.matches_connection_ok
 		end
 
-	get_response (tag: STRING): IL_SERVER_RESPONSE
+	update_responses (tag: STRING)
+			-- Updates the response table with responses up to `tag'
+		require
+			tag_not_empty: tag /= Void and then not tag.is_empty
+		do
+			from
+			until
+				responses_table.has (tag) or not network.is_connected
+			loop
+				get_next_response
+			end
+		end
+
+	read_response(tag: STRING): IL_SERVER_RESPONSE
 			-- Returns the server response that the server gave for command with tag `tag'
 		require
 			tag_not_empty: tag /= Void and then not tag.is_empty
@@ -49,17 +62,27 @@ feature -- Basic operations
 		do
 			from
 			until
-				responses_table.has (tag)
+				responses_table.has (tag) or not network.is_connected
 			loop
 				get_next_response
 			end
 			server_response := responses_table.at (tag)
-			responses_table.remove (tag)
 			if attached {IL_SERVER_RESPONSE} server_response then
 				Result := server_response
 			else
-				create Result.make_empty
+				create Result.make_error
 			end
+		ensure
+			Result_not_void: Result /= Void
+		end
+
+	get_response (tag: STRING): IL_SERVER_RESPONSE
+			-- Returns the server response that the server gave for command with tag `tag' and deletes it from the list
+		require
+			tag_not_empty: tag /= Void and then not tag.is_empty
+		do
+			Result := read_response(tag)
+			responses_table.remove (tag)
 		ensure
 			Result_not_void: Result /= Void
 		end
@@ -74,12 +97,18 @@ feature {NONE} -- Implementation
 			server_response: detachable IL_SERVER_RESPONSE
 		do
 			response := network.get_line
+
 			if not response.is_empty then
 				create parser.make_from_text (response)
 				tag := parser.get_tag
 
+					-- When the server sends a BYE answer, we are in a disconnected state	
+				if parser.matches_bye then
+					network.set_state ({IL_NETWORK_STATE}.Not_connected_state)
+					debugger.dprint (debugger.Dwarning, "BYE answer received. We are now disconnected")
+
 					-- When the next response is untagged we create a temporary entry in the `responses_table' to store the new IL_SERVER_RESPONSE
-				if tag ~ "*" then
+				elseif tag ~ "*" then
 					if responses_table.has (Next_response_tag) then
 						server_response := responses_table.at (Next_response_tag)
 						if server_response = Void then
@@ -104,6 +133,9 @@ feature {NONE} -- Implementation
 					server_response.set_status (parser.get_status)
 					responses_table.put (server_response, tag)
 				end
+			else
+				network.set_state( {IL_NETWORK_STATE}.Not_connected_state )
+				debugger.dprint (debugger.dwarning, "Empty answer received. We are now disconnected")
 			end
 		end
 

@@ -23,8 +23,13 @@ feature -- Constants
 
 	Tag_prefix: STRING = "il"
 
-	Debug_tag: STRING = "	DEBUG: "
 
 	Next_response_tag: STRING = "NEXT_RESPONSE"
+
+	debugger: IL_DEBUG
+		once
+			create Result.make
+		end
+
 
 end

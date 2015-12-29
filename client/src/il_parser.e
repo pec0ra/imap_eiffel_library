@@ -61,7 +61,7 @@ feature -- Basic operations
 				until
 					not regex.has_matched
 				loop
-					add_capability_from_text(Result, regex.captured_substring (0))
+					Result.extend (regex.captured_substring (0))
 					regex.next_match
 				end
 
@@ -69,6 +69,13 @@ feature -- Basic operations
 				Result.extend (get_command (Capability_action))
 				Result.extend (get_command (Logout_action))
 			end
+		end
+
+	matches_bye: BOOLEAN
+			-- Returns true iff the text matches a BYE response
+		do
+			regex.compile (Bye_pattern)
+			Result := regex.matches (text)
 		end
 
 	get_text: STRING
@@ -114,9 +121,11 @@ feature -- Basic operations
 			end
 		end
 
-feature -- Constants
+feature {NONE} -- Constants
 
 	Connection_ok_pattern: STRING = "^\* OK (.*)$"
+
+	Bye_pattern: STRING = "^\* BYE (.*)$"
 
 	Capability_pattern: STRING = "(([A-Z]|=|rev|\d|\+|-)+)"
 
@@ -139,16 +148,4 @@ feature {NONE} -- Constants
 	Untagged_label: String = "*"
 
 
-feature {NONE} -- Implementation
-
-	add_capability_from_text( a_list: LINKED_LIST[STRING]; a_text: STRING)
-			-- Parses the text and will add a new command to `a_list' if it can deduce one from `a_text'
-		require
-			a_list_not_void: a_list /= Void
-			a_text_not_empty: a_text /= Void and then not a_text.is_empty
-		do
-			if a_text ~ "AUTH=LOGIN" then
-				a_list.extend(get_command(Login_action))
-			end
-		end
 end

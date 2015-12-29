@@ -11,14 +11,15 @@ feature -- Access
 
 	Login_action: NATURAL = 1
 	Capability_action: NATURAL = 2
-	Open_action: NATURAL = 3
-	Noop_action: NATURAL = 4
-	Logout_action: NATURAL = 5
+	Select_action: NATURAL = 3
+	List_action: NATURAL = 4
+	Noop_action: NATURAL = 5
+	Logout_action: NATURAL = 6
 
 
 
 	min_action: NATURAL = 1
-	max_action: NATURAL = 5
+	max_action: NATURAL = 6
 
 feature -- Basic Operations
 
@@ -32,12 +33,14 @@ feature -- Basic Operations
 				Result := "LOGIN"
 			when Capability_action then
 				Result := "CAPABILITY"
-			when Open_action then
-				Result := "OPEN"
 			when Noop_action then
 				Result := "NOOP"
 			when Logout_action then
 				Result := "LOGOUT"
+			when Select_action then
+				Result := "SELECT"
+			when List_action then
+				Result := "LIST"
 			else
 				Result := ""
 			end

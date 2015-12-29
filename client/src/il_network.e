@@ -10,6 +10,8 @@ class
 inherit
 	SOCKET_RESOURCES
 	IL_CONSTANTS
+	IL_NETWORK_STATE
+
 
 create
 	make_with_address_and_port
@@ -25,6 +27,7 @@ feature -- Initialization
 			address := a_address
 			port := a_port
 			create socket.make_client_by_port (port, address)
+
 		ensure
 			address_set: address = a_address
 			port_set: port = a_port
@@ -38,12 +41,15 @@ feature -- Basic functions
 			if not socket.is_connected then
 				socket.connect
 			end
+			if socket.is_connected and state = not_connected_state then
+				set_state(Not_authenticated_state)
+			end
 		end
 
 	is_connected: BOOLEAN
 		-- returns true if the socket is connected
 		do
-			Result := socket.is_connected
+			Result := socket.is_connected and state /= Not_connected_state
 		end
 
 	send_command (tag: STRING; command: STRING; arguments: LIST[STRING])
@@ -55,6 +61,7 @@ feature -- Basic functions
 		local
 			str: STRING
 		do
+
 			str := tag + " " + command
 			if arguments /= Void then
 				across arguments as argument loop
@@ -73,9 +80,9 @@ feature -- Basic functions
 		do
 			socket.put_string(command)
 			socket.put_new_line
-			print(Debug_tag + "SENDING:   " + command)
-			io.put_new_line
+			debugger.dprint(debugger.dsending, command)
 		end
+
 
 
 
@@ -98,8 +105,7 @@ feature -- Implementation
 		do
 			socket.read_line
 			Result := socket.last_string
-			print(Debug_tag + "RECEIVING: " + Result)
-			io.put_new_line
+			debugger.dprint(debugger.dreceiving, Result)
 		end
 
 

@@ -12,7 +12,8 @@ inherit
 
 create
 	make_with_tagged_text,
-	make_empty
+	make_empty,
+	make_error
 
 
 feature -- Initialization
@@ -25,6 +26,7 @@ feature -- Initialization
 			tagged_text := a_text
 			create untagged_responses.make
 			status := Command_no_label
+			is_error := false
 		ensure
 			tagged_text_set: tagged_text = a_text
 		end
@@ -34,6 +36,15 @@ feature -- Initialization
 			tagged_text := ""
 			create untagged_responses.make
 			status := Command_no_label
+			is_error := false
+		end
+
+	make_error
+		do
+			tagged_text := ""
+			create untagged_responses.make
+			status := Command_no_label
+			is_error := true
 		end
 
 feature -- Access
@@ -43,6 +54,9 @@ feature -- Access
 	status: STRING
 
 	untagged_responses: LINKED_LIST[STRING]
+
+	is_error: BOOLEAN
+			-- Set to true if the response could not be received from the server
 
 
 feature -- Basic operations

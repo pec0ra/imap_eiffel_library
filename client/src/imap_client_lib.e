@@ -96,36 +96,11 @@ feature {NONE} -- Initialization
 
 feature -- Basic Commands
 
-	connect
-		-- Attempt to create a connection to the IMAP server
-		do
-			network.connect
-			check
-				response_mgr.was_connection_ok
-			end
-		ensure
-			network.is_connected
-		end
-
-	login ( a_user_name: STRING; a_password: STRING)
-			-- Attempt to login
-		require
-			supports_action(Login_action)
-		local
-			args:LINKED_LIST[STRING]
-		do
-			create args.make
-			args.extend (a_user_name)
-			args.extend (a_password)
-			network.send_command (get_tag, get_command (Login_action), args)
-		end
-
 	logout
 			-- Attempt to logout
 		do
 			network.send_command (get_tag, get_command (Logout_action), create {ARRAYED_LIST[STRING]}.make (0))
 		end
-
 
 	get_capability: LINKED_LIST[STRING]
 		require
@@ -139,37 +114,134 @@ feature -- Basic Commands
 			network.send_command (tag, get_command(Capability_action), create {ARRAYED_LIST[STRING]}.make (0))
 			response := get_response (tag)
 
-			check response.untagged_response_count = 1 end
+			check correct_response_received: response.untagged_response_count = 1 or response.is_error end
 
-			create parser.make_from_text(response.get_untagged_response(0))
-			Result := parser.match_capabilities
+			if not response.is_error then
+				create parser.make_from_text(response.get_untagged_response(0))
+				Result := parser.match_capabilities
+			else
+				create Result.make
+			end
+
 
 		end
 
-	open_mailbox ( a_mail_box_name: STRING )
-		require
-			supports_action(Open_action)
+feature -- Not connected commands
+
+	connect
+		-- Attempt to create a connection to the IMAP server
 		do
+			network.connect
+			check
+				response_mgr.was_connection_ok
+			end
+			network.set_state ({IL_NETWORK_STATE}.not_authenticated_state)
+		ensure
+			network.is_connected
+		end
+
+feature -- Not authenticated commands
+
+	login ( a_user_name: STRING; a_password: STRING)
+			-- Attempt to login
+		require
+			supports_action: supports_action(Login_action)
+		local
+			args:LINKED_LIST[STRING]
+		do
+			create args.make
+			args.extend (a_user_name)
+			args.extend (a_password)
+			network.send_command (get_tag, get_command (Login_action), args)
+			network.update_imap_state(response_mgr.read_response (current_tag), {IL_NETWORK_STATE}.authenticated_state)
+		end
+
+
+feature -- Authenticated commands
+
+	list ( a_reference_name: STRING; a_name: STRING )
+			-- List the mailbox at `a_reference_name' with name `a_name'
+			-- `a_name' may use wildcards
+		require
+			args_not_void: a_reference_name /= Void and a_name /= Void
+		local
+			args:LINKED_LIST[STRING]
+		do
+			create args.make
+			args.extend ("%"" + a_reference_name + "%"")
+			args.extend ("%"" + a_name + "%"")
+			network.send_command (get_tag, get_command (List_action), args)
+		end
+
+	get_list ( a_reference_name: STRING; a_name: STRING ): LINKED_LIST[IL_MAILBOX]
+			-- Returns a list of the mailbox at `a_reference_name' with name `a_name'
+			-- `a_name' may use wildcards
+		require
+			args_not_void: a_reference_name /= Void and a_name /= Void
+		local
+			args:LINKED_LIST[STRING]
+			tag: STRING
+			response: IL_SERVER_RESPONSE
+			parser: IL_MAILBOX_LIST_PARSER
+		do
+			create args.make
+			args.extend ("%"" + a_reference_name + "%"")
+			args.extend ("%"" + a_name + "%"")
+			tag := get_tag
+			network.send_command (tag, get_command (List_action), args)
+
+			response := get_response (tag)
+			create parser.make_from_response (response)
+			if parser.get_status ~ Command_ok_label then
+				Result := parser.get_list
+			else
+				create Result.make
+			end
+
+		end
+
+
+	select_mailbox ( a_mail_box_name: STRING )
+		require
+			supports_action(Select_action)
+		local
+			tag: STRING
+			arguments: ARRAYED_LIST[STRING]
+		do
+			tag := get_tag
+			create arguments.make (1)
+			arguments.put_i_th (a_mail_box_name, 0)
+			network.send_command (tag, get_command (Select_action), arguments)
 		end
 
 
 feature -- Basic Operations
 
+	is_connected:BOOLEAN
+			-- Returns true iff the network is connected to the socket
+		do
+			if current_tag_number > 0 then
+				response_mgr.update_responses (current_tag)
+			end
+			Result := network.is_connected
+		end
+
+	-- TODO: See if this is really needed
 	supports_action(action: NATURAL): BOOLEAN
 		-- Returns true if the command `action' is supported in current context
 	local
 		capability_list: LINKED_LIST[STRING]
 	do
-		capability_list := get_capability
+		--capability_list := get_capability
 
-		Result := false
-		across
-			capability_list as cap
-		loop
-			if cap.item ~ get_command(action) then
+		--Result := false
+		--across
+		--	capability_list as cap
+		--loop
+		--	if cap.item ~ get_command(action) then
 				Result := true
-			end
-		end
+		--	end
+		--end
 	end
 
 	get_last_response: IL_SERVER_RESPONSE
