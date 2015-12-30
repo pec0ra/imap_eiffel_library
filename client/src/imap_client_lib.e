@@ -223,7 +223,7 @@ feature -- Authenticated commands
 		end
 
 	list ( a_reference_name: STRING; a_name: STRING )
-			-- List the mailbox at `a_reference_name' with name `a_name'
+			-- List the names at `a_reference_name' in mailbox `a_name'
 			-- `a_name' may use wildcards
 		require
 			args_not_void: a_reference_name /= Void and a_name /= Void
@@ -236,8 +236,8 @@ feature -- Authenticated commands
 			network.send_command (get_tag, get_command (List_action), args)
 		end
 
-	get_list ( a_reference_name: STRING; a_name: STRING ): LINKED_LIST[IL_MAILBOX]
-			-- Returns a list of the mailbox at `a_reference_name' with name `a_name'
+	get_list ( a_reference_name: STRING; a_name: STRING ): LINKED_LIST[IL_NAME]
+			-- Returns a list of the names at `a_reference_name' in mailbox `a_name'
 			-- `a_name' may use wildcards
 		require
 			args_not_void: a_reference_name /= Void and a_name /= Void
@@ -245,7 +245,7 @@ feature -- Authenticated commands
 			args:LINKED_LIST[STRING]
 			tag: STRING
 			response: IL_SERVER_RESPONSE
-			parser: IL_MAILBOX_LIST_PARSER
+			parser: IL_NAME_LIST_PARSER
 		do
 			create args.make
 			args.extend ("%"" + a_reference_name + "%"")
@@ -264,7 +264,7 @@ feature -- Authenticated commands
 		end
 
 	lsub ( a_reference_name: STRING; a_name: STRING )
-			-- Send command lsub with arguments `a_reference_name' and `a_name'
+			-- Send command lsub for `a_reference_name' in mailbox `a_name'
 			-- `a_name' may use wildcards
 		require
 			args_not_void: a_reference_name /= Void and a_name /= Void
@@ -277,8 +277,8 @@ feature -- Authenticated commands
 			network.send_command (get_tag, get_command (Lsub_action), args)
 		end
 
-	get_lsub ( a_reference_name: STRING; a_name: STRING ): LINKED_LIST[IL_MAILBOX]
-			-- Returns a list of the mailbox for the command lsub with arguments `a_reference_name' and `a_name'
+	get_lsub ( a_reference_name: STRING; a_name: STRING ): LINKED_LIST[IL_NAME]
+			-- Returns a list of the name for the command lsub at `a_reference_name' in mailbox `a_name'
 			-- `a_name' may use wildcards
 		require
 			args_not_void: a_reference_name /= Void and a_name /= Void
@@ -286,7 +286,7 @@ feature -- Authenticated commands
 			args:LINKED_LIST[STRING]
 			tag: STRING
 			response: IL_SERVER_RESPONSE
-			parser: IL_MAILBOX_LIST_PARSER
+			parser: IL_NAME_LIST_PARSER
 		do
 			create args.make
 			args.extend ("%"" + a_reference_name + "%"")

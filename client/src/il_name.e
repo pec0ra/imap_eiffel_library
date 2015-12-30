@@ -5,7 +5,7 @@ note
 	revision: "$Revision$"
 
 class
-	IL_MAILBOX
+	IL_NAME
 
 create
 	make_with_raw_path

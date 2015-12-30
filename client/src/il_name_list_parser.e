@@ -1,11 +1,11 @@
 note
-	description: "Summary description for {IL_MAILBOX_LIST_PARSER}."
+	description: "Summary description for {IL_NAME_LIST_PARSER}."
 	author: ""
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	IL_MAILBOX_LIST_PARSER
+	IL_NAME_LIST_PARSER
 
 inherit
 	IL_PARSER
@@ -35,10 +35,10 @@ feature -- Initialization
 
 feature -- Basic operations
 
-	get_list: LINKED_LIST[IL_MAILBOX]
+	get_list: LINKED_LIST[IL_NAME]
 			-- Return a list with the mailbox names
 		local
-			mailbox: IL_MAILBOX
+			mailbox: IL_NAME
 			raw_path, raw_attributes: STRING
 		do
 			create Result.make
@@ -85,7 +85,7 @@ feature {NONE} -- Implementation
 
 	mailbox_list: LINKED_LIST[STRING]
 
-	parse_raw_path ( a_raw_path: STRING; a_mailbox: IL_MAILBOX; hierarchy_delimiter: STRING)
+	parse_raw_path ( a_raw_path: STRING; a_mailbox: IL_NAME; hierarchy_delimiter: STRING)
 			-- Sets the path and name to `a_mailbox' from `a_raw_path'
 		require
 			a_raw_path_not_empty: a_raw_path /= Void and then not a_raw_path.is_empty
@@ -125,7 +125,7 @@ feature {NONE} -- Implementation
 			end
 		end
 
-	parse_raw_attributes ( a_raw_attributes: STRING; a_mailbox: IL_MAILBOX )
+	parse_raw_attributes ( a_raw_attributes: STRING; a_mailbox: IL_NAME )
 			-- Sets the attributes `a_mailbox' from `a_raw_attributes'
 		local
 			attributes_regex: RX_PCRE_REGULAR_EXPRESSION
