@@ -13,13 +13,15 @@ feature -- Access
 	Capability_action: NATURAL = 2
 	Select_action: NATURAL = 3
 	List_action: NATURAL = 4
-	Noop_action: NATURAL = 5
-	Logout_action: NATURAL = 6
+	Lsub_action: NATURAL = 5
+	Status_action: NATURAL = 6
+	Noop_action: NATURAL = 7
+	Logout_action: NATURAL = 8
 
 
 
 	min_action: NATURAL = 1
-	max_action: NATURAL = 6
+	max_action: NATURAL = 8
 
 feature -- Basic Operations
 
@@ -41,6 +43,10 @@ feature -- Basic Operations
 				Result := "SELECT"
 			when List_action then
 				Result := "LIST"
+			when Lsub_action then
+				Result := "LSUB"
+			when Status_action then
+				Result := "STATUS"
 			else
 				Result := ""
 			end

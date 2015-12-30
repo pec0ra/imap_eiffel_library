@@ -191,7 +191,48 @@ feature -- Authenticated commands
 			network.send_command (tag, get_command (List_action), args)
 
 			response := get_response (tag)
-			create parser.make_from_response (response)
+			create parser.make_from_response (response, false)
+			if parser.get_status ~ Command_ok_label then
+				Result := parser.get_list
+			else
+				create Result.make
+			end
+
+		end
+
+	lsub ( a_reference_name: STRING; a_name: STRING )
+			-- Send command lsub with arguments `a_reference_name' and `a_name'
+			-- `a_name' may use wildcards
+		require
+			args_not_void: a_reference_name /= Void and a_name /= Void
+		local
+			args:LINKED_LIST[STRING]
+		do
+			create args.make
+			args.extend ("%"" + a_reference_name + "%"")
+			args.extend ("%"" + a_name + "%"")
+			network.send_command (get_tag, get_command (Lsub_action), args)
+		end
+
+	get_lsub ( a_reference_name: STRING; a_name: STRING ): LINKED_LIST[IL_MAILBOX]
+			-- Returns a list of the mailbox for the command lsub with arguments `a_reference_name' and `a_name'
+			-- `a_name' may use wildcards
+		require
+			args_not_void: a_reference_name /= Void and a_name /= Void
+		local
+			args:LINKED_LIST[STRING]
+			tag: STRING
+			response: IL_SERVER_RESPONSE
+			parser: IL_MAILBOX_LIST_PARSER
+		do
+			create args.make
+			args.extend ("%"" + a_reference_name + "%"")
+			args.extend ("%"" + a_name + "%"")
+			tag := get_tag
+			network.send_command (tag, get_command (Lsub_action), args)
+
+			response := get_response (tag)
+			create parser.make_from_response (response, true)
 			if parser.get_status ~ Command_ok_label then
 				Result := parser.get_list
 			else
@@ -212,6 +253,38 @@ feature -- Authenticated commands
 			create arguments.make (1)
 			arguments.put_i_th (a_mail_box_name, 0)
 			network.send_command (tag, get_command (Select_action), arguments)
+		end
+
+	get_status ( a_mailbox_name: STRING; status_data: LINKED_LIST[STRING] ): HASH_TABLE[STRING, INTEGER]
+			-- Return the status of the mailbox `a_mailbox_name' for status data in list `status_data'
+		require
+			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
+			status_data_not_empty: status_data /= Void and then not status_data.is_empty
+		local
+			args:LINKED_LIST[STRING]
+			arg: STRING
+			tag: STRING
+			response: IL_SERVER_RESPONSE
+			parser: IL_PARSER
+		do
+			create args.make
+			args.extend (a_mailbox_name)
+			arg := "("
+			across
+				status_data as data
+			loop
+				arg := arg + data.item + " "
+			end
+			arg := arg + ")"
+			args.extend (arg)
+
+			tag := get_tag
+			network.send_command (tag, get_command (Status_action), args)
+
+			response := get_response (tag)
+			create parser.make_from_text (response.untagged_responses.at(0))
+			Result := parser.get_status_data
+			
 		end
 
 

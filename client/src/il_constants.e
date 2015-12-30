@@ -31,5 +31,11 @@ feature -- Constants
 			create Result.make
 		end
 
+	Message_status: STRING = "MESSAGES"
+	Recent_status: STRING = "RECENT"
+	Uid_next_status: STRING = "UIDNEXT"
+	Uid_validity_status: STRING = "UIDVALIDIY"
+	Unseen_status: STRING = "UNSEEN"
+
 
 end

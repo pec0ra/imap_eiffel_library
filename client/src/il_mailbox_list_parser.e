@@ -15,7 +15,7 @@ create
 
 feature -- Initialization
 
-	make_from_response (a_response: IL_SERVER_RESPONSE)
+	make_from_response (a_response: IL_SERVER_RESPONSE; is_lsub: BOOLEAN)
 			-- Create a parser which will parse `a_response'
 		require
 			correct_response : a_response /= Void and then not a_response.is_error
@@ -23,6 +23,11 @@ feature -- Initialization
 			text := a_response.tagged_text
 			mailbox_list := a_response.untagged_responses
 			create regex.make
+			if is_lsub then
+				Command := Lsub
+			else
+				Command := List
+			end
 		ensure
 			text_set: text = a_response.tagged_text
 			mailbox_list_set: mailbox_list = a_response.untagged_responses
@@ -64,7 +69,14 @@ feature -- Basic operations
 
 feature {NONE} -- Constants
 
-	List_item_pattern: STRING = "^\* LIST \((.*)\) %"(.*)%" (.+)$"
+	List: STRING = "LIST"
+	Lsub: STRING = "LSUB"
+	Command: STRING
+
+	List_item_pattern: STRING
+		once
+			Result := "^\* " + Command + " \((.*)\) %"(.*)%" (.+)%R$"
+		end
 
 	Raw_attributes_pattern: STRING = "(\\.+)"
 

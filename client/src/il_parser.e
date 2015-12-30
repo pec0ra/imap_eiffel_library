@@ -121,6 +121,32 @@ feature -- Basic operations
 			end
 		end
 
+	get_status_data: HASH_TABLE[STRING, INTEGER]
+			-- Return the status data contained in the untagged response `text'
+		local
+			data: STRING
+		do
+			regex.compile (Status_data_response_pattern)
+			if regex.matches (text) then
+				data := regex.captured_substring (1)
+
+
+				regex.compile (Status_data_pattern)
+				create Result.make (0)
+				from
+					regex.match (data)
+				until
+					not regex.has_matched
+				loop
+					Result.put (regex.captured_substring (1), regex.captured_substring (2).to_integer)
+					regex.next_match
+				end
+			else
+				create Result.make (0)
+			end
+
+		end
+
 feature {NONE} -- Constants
 
 	Connection_ok_pattern: STRING = "^\* OK (.*)$"
@@ -138,6 +164,9 @@ feature {NONE} -- Constants
 	Integer_from_tag_pattern: STRING = "^il(\d+)$"
 
 	Status_pattern: STRING = "^il\d+ (OK|NO|BAD)"
+
+	Status_data_response_pattern: STRING = "^\* STATUS .* \((.+)\)%R$"
+	Status_data_pattern: STRING = "(MESSAGES|RECENT|UIDNEXT|UIDVALIDITY|UNSEEN) ([0-9]+) ?"
 
 feature {NONE} -- Constants
 
