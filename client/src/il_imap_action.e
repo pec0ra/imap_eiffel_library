@@ -12,6 +12,7 @@ feature -- Access
 	Login_action: NATURAL = 1
 	Capability_action: NATURAL = 2
 	Select_action: NATURAL = 3
+	Examine_action: NATURAL = 14
 	Create_action: NATURAL = 13
 	Delete_action: NATURAL = 12
 	Rename_action: NATURAL = 4
@@ -26,7 +27,7 @@ feature -- Access
 
 
 	min_action: NATURAL = 1
-	max_action: NATURAL = 13
+	max_action: NATURAL = 14
 
 feature -- Basic Operations
 
@@ -44,6 +45,10 @@ feature -- Basic Operations
 				Result := "NOOP"
 			when Logout_action then
 				Result := "LOGOUT"
+			when Select_action then
+				Result := "SELECT"
+			when Examine_action then
+				Result := "EXAMINE"
 			when Create_action then
 				Result := "CREATE"
 			when Delete_action then
@@ -54,8 +59,6 @@ feature -- Basic Operations
 				Result := "SUBSCRIBE"
 			when Unsubscribe_action then
 				Result := "UNSUBSCRIBE"
-			when Select_action then
-				Result := "SELECT"
 			when List_action then
 				Result := "LIST"
 			when Lsub_action then

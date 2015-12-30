@@ -16,7 +16,7 @@ inherit
 create
 	make_with_address_and_port
 
-feature -- Initialization
+feature {NONE} -- Initialization
 
 	make_with_address_and_port (a_address: STRING; a_port: INTEGER)
 		-- Set `address' to `a_address' and `port' to `a_port'

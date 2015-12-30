@@ -10,7 +10,7 @@ class
 create
 	make_with_raw_path
 
-feature -- Initialization
+feature {NONE} -- Initialization
 
 	make_with_raw_path (a_raw_path: STRING)
 			-- Create a new mailbox with `a_raw_path'

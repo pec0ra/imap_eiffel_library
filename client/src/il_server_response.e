@@ -16,7 +16,7 @@ create
 	make_error
 
 
-feature -- Initialization
+feature {NONE} -- Initialization
 
 	make_with_tagged_text ( a_text: STRING)
 			-- Initialize with `a_text' as `tagged_text'

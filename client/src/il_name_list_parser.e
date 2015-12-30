@@ -13,7 +13,7 @@ inherit
 create
 	make_from_response
 
-feature -- Initialization
+feature {NONE} -- Initialization
 
 	make_from_response (a_response: IL_SERVER_RESPONSE; is_lsub: BOOLEAN)
 			-- Create a parser which will parse `a_response'

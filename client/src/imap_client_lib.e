@@ -159,6 +159,54 @@ feature -- Not authenticated commands
 
 feature -- Authenticated commands
 
+	select_mailbox ( a_mailbox_name: STRING ): IL_MAILBOX
+			-- Select the mailbox `a_mailbox_name'
+		require
+			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
+		local
+			args:LINKED_LIST[STRING]
+			response: IL_SERVER_RESPONSE
+			tag: STRING
+			parser: IL_MAILBOX_PARSER
+		do
+			tag := get_tag
+			create args.make
+			args.extend (a_mailbox_name)
+			network.send_command (tag, get_command (Select_action), args)
+			response := get_response (tag)
+			if not response.is_error and then response.status ~ Command_ok_label then
+				create parser.make_from_response (response, a_mailbox_name)
+				Result := parser.parse_mailbox
+				network.update_imap_state (response, {IL_NETWORK_STATE}.selected_state)
+			else
+				create Result.make_with_name (a_mailbox_name)
+			end
+		end
+
+	examine_mailbox ( a_mailbox_name: STRING ): IL_MAILBOX
+			-- Select the mailbox `a_mailbox_name' in read only
+		require
+			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
+		local
+			args:LINKED_LIST[STRING]
+			response: IL_SERVER_RESPONSE
+			tag: STRING
+			parser: IL_MAILBOX_PARSER
+		do
+			tag := get_tag
+			create args.make
+			args.extend (a_mailbox_name)
+			network.send_command (tag, get_command (Examine_action), args)
+			response := get_response (tag)
+			if not response.is_error and then response.status ~ Command_ok_label then
+				create parser.make_from_response (response, a_mailbox_name)
+				Result := parser.parse_mailbox
+				network.update_imap_state (response, {IL_NETWORK_STATE}.selected_state)
+			else
+				create Result.make_with_name (a_mailbox_name)
+			end
+		end
+
 	create_mailbox ( a_mailbox_name: STRING )
 			-- Delete the mailbox `a_mailbox_name'
 		require
@@ -302,20 +350,6 @@ feature -- Authenticated commands
 				create Result.make
 			end
 
-		end
-
-
-	select_mailbox ( a_mail_box_name: STRING )
-		require
-			supports_action(Select_action)
-		local
-			tag: STRING
-			arguments: ARRAYED_LIST[STRING]
-		do
-			tag := get_tag
-			create arguments.make (1)
-			arguments.put_i_th (a_mail_box_name, 0)
-			network.send_command (tag, get_command (Select_action), arguments)
 		end
 
 	get_status ( a_mailbox_name: STRING; status_data: LINKED_LIST[STRING] ): HASH_TABLE[STRING, INTEGER]
