@@ -159,6 +159,69 @@ feature -- Not authenticated commands
 
 feature -- Authenticated commands
 
+	create_mailbox ( a_mailbox_name: STRING )
+			-- Delete the mailbox `a_mailbox_name'
+		require
+			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
+		local
+			args:LINKED_LIST[STRING]
+		do
+			create args.make
+			args.extend (a_mailbox_name)
+			network.send_command (get_tag, get_command (Create_action), args)
+		end
+
+	delete_mailbox ( a_mailbox_name: STRING )
+			-- Delete the mailbox `a_mailbox_name'
+		require
+			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
+		local
+			args:LINKED_LIST[STRING]
+		do
+			create args.make
+			args.extend (a_mailbox_name)
+			network.send_command (get_tag, get_command (Delete_action), args)
+		end
+
+	rename_mailbox ( a_mailbox_name: STRING; a_new_name: STRING )
+			-- Rename the mailbox `a_mailbox_name' to `a_new_name'
+		require
+			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
+			a_new_name_not_empty: a_new_name /= Void and then not a_new_name.is_empty
+		local
+			args:LINKED_LIST[STRING]
+		do
+			create args.make
+			args.extend (a_mailbox_name)
+			args.extend (a_new_name)
+			network.send_command (get_tag, get_command (Rename_action), args)
+		end
+
+
+	subscribe ( a_mailbox_name: STRING )
+			-- Subscribe to the mailbox `a_mailbox_name'
+		require
+			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
+		local
+			args:LINKED_LIST[STRING]
+		do
+			create args.make
+			args.extend (a_mailbox_name)
+			network.send_command (get_tag, get_command (Subscribe_action), args)
+		end
+
+	unsubscribe ( a_mailbox_name: STRING )
+			-- Unsubscribe from the mailbox `a_mailbox_name'
+		require
+			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
+		local
+			args:LINKED_LIST[STRING]
+		do
+			create args.make
+			args.extend (a_mailbox_name)
+			network.send_command (get_tag, get_command (Unsubscribe_action), args)
+		end
+
 	list ( a_reference_name: STRING; a_name: STRING )
 			-- List the mailbox at `a_reference_name' with name `a_name'
 			-- `a_name' may use wildcards
@@ -284,7 +347,7 @@ feature -- Authenticated commands
 			response := get_response (tag)
 			create parser.make_from_text (response.untagged_responses.at(0))
 			Result := parser.get_status_data
-			
+
 		end
 
 
