@@ -142,6 +142,15 @@ feature -- Not connected commands
 
 feature -- Not authenticated commands
 
+	starttls
+			-- Start tls negociation
+		local
+			args: LINKED_LIST[STRING]
+		do
+			create args.make
+			network.send_command (get_tag, get_command(Starttls_action), args)
+		end
+
 	login ( a_user_name: STRING; a_password: STRING)
 			-- Attempt to login
 		require
@@ -382,6 +391,59 @@ feature -- Authenticated commands
 			create parser.make_from_text (response.untagged_responses.at(0))
 			Result := parser.get_status_data
 
+		end
+
+
+feature -- Selected commands
+
+	check_command
+			-- Request a checkpoint
+		local
+			args: LINKED_LIST[STRING]
+		do
+			create args.make
+			network.send_command (get_tag, get_command (Check_action), args)
+		end
+
+
+	close
+			-- Close the selected mailbox. Switch to authenticated state on success
+		local
+			args: LINKED_LIST[STRING]
+		do
+			create args.make
+			network.send_command (get_tag, get_command (Close_action), args)
+			network.update_imap_state(response_mgr.read_response (current_tag), {IL_NETWORK_STATE}.authenticated_state)
+		end
+
+	expunge
+			-- Send expunge command.
+		local
+			args: LINKED_LIST[STRING]
+		do
+			create args.make
+			network.send_command (get_tag, get_command (Expunge_action), args)
+		end
+
+	get_expunge: LINKED_LIST[INTEGER]
+			-- Send expunge command. Returns a list of the deleted messages
+		local
+			args: LINKED_LIST[STRING]
+			tag: STRING
+			response: IL_SERVER_RESPONSE
+			parser: IL_EXPUNGE_PARSER
+		do
+			create args.make
+			tag := get_tag
+			network.send_command (tag, get_command (Expunge_action), args)
+
+			response := get_response (tag)
+			create parser.make_from_response (response)
+			if parser.get_status ~ Command_ok_label then
+				Result := parser.parse_expunged
+			else
+				create Result.make
+			end
 		end
 
 

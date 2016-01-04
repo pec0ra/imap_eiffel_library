@@ -10,24 +10,33 @@ class
 feature -- Access
 
 	Login_action: NATURAL = 1
-	Capability_action: NATURAL = 2
-	Select_action: NATURAL = 3
-	Examine_action: NATURAL = 14
-	Create_action: NATURAL = 13
-	Delete_action: NATURAL = 12
-	Rename_action: NATURAL = 4
-	Subscribe_action: NATURAL = 5
-	Unsubscribe_action: NATURAL = 6
+	Starttls_action: NATURAL = 2
+	Capability_action: NATURAL = 3
+	Select_action: NATURAL = 4
+	Examine_action: NATURAL = 5
+	Create_action: NATURAL = 6
+	Delete_action: NATURAL = 7
+	Rename_action: NATURAL = 8
+	Subscribe_action: NATURAL = 9
+	Unsubscribe_action: NATURAL = 10
 	List_action: NATURAL = 11
-	Lsub_action: NATURAL = 7
-	Status_action: NATURAL = 8
-	Noop_action: NATURAL = 9
-	Logout_action: NATURAL = 10
+	Lsub_action: NATURAL = 12
+	Status_action: NATURAL = 13
+	Check_action: NATURAL = 14
+	Close_action: NATURAL = 15
+	Expunge_action: NATURAL = 16
+	Search_action: NATURAL = 17
+	Fetch_action: NATURAL = 18
+	Store_action: NATURAL = 19
+	Copy_action: NATURAL = 20
+	Uid_action: NATURAL = 21
+	Noop_action: NATURAL = 22
+	Logout_action: NATURAL = 23
 
 
 
 	min_action: NATURAL = 1
-	max_action: NATURAL = 14
+	max_action: NATURAL = 23
 
 feature -- Basic Operations
 
@@ -39,6 +48,8 @@ feature -- Basic Operations
 			inspect a_action
 			when Login_action then
 				Result := "LOGIN"
+			when Starttls_action then
+				Result := "STARTTLS"
 			when Capability_action then
 				Result := "CAPABILITY"
 			when Noop_action then
@@ -65,6 +76,22 @@ feature -- Basic Operations
 				Result := "LSUB"
 			when Status_action then
 				Result := "STATUS"
+			when Check_action then
+				Result := "CHECK"
+			when Close_action then
+				Result := "CLOSE"
+			when Expunge_action then
+				Result := "EXPUNGE"
+			when Search_action then
+				Result := "SEARCH"
+			when Fetch_action then
+				Result := "FETCH"
+			when Store_action then
+				Result := "STORE"
+			when Copy_action then
+				Result := "COPY"
+			when Uid_action then
+				Result := "UID"
 			else
 				Result := ""
 			end
