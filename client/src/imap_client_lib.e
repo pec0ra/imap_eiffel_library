@@ -361,7 +361,7 @@ feature -- Authenticated commands
 
 		end
 
-	get_status ( a_mailbox_name: STRING; status_data: LINKED_LIST[STRING] ): HASH_TABLE[STRING, INTEGER]
+	get_status ( a_mailbox_name: STRING; status_data: LINKED_LIST[STRING] ): HASH_TABLE[INTEGER, STRING]
 			-- Return the status of the mailbox `a_mailbox_name' for status data in list `status_data'
 		require
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
@@ -444,6 +444,39 @@ feature -- Selected commands
 			else
 				create Result.make
 			end
+		end
+
+	search (charset: STRING; criterias: LINKED_LIST[STRING]): LINKED_LIST[INTEGER]
+			-- Return a list of message that match the criterias `criterias'
+		require
+			criterias_not_void: criterias /= Void
+		local
+			args: LINKED_LIST[STRING]
+			tag: STRING
+			response: IL_SERVER_RESPONSE
+			parser: IL_PARSER
+		do
+			tag := get_tag
+
+			create args.make
+			if charset /= Void and then not charset.is_empty then
+				args.extend ("CHARSET " + charset)
+			end
+			across
+				criterias as criteria
+			loop
+				args.extend (criteria.item)
+			end
+			network.send_command (tag, get_command (Search_action), args)
+
+			response := get_response (tag)
+			if response.status ~ Command_ok_label and then response.untagged_response_count = 1 then
+				create parser.make_from_text (response.untagged_responses.at (0))
+				Result := parser.get_search_results
+			else
+				create Result.make
+			end
+
 		end
 
 

@@ -121,7 +121,7 @@ feature -- Basic operations
 			end
 		end
 
-	get_status_data: HASH_TABLE[STRING, INTEGER]
+	get_status_data: HASH_TABLE[INTEGER, STRING]
 			-- Return the status data contained in the untagged response `text'
 		local
 			data: STRING
@@ -138,13 +138,34 @@ feature -- Basic operations
 				until
 					not regex.has_matched
 				loop
-					Result.put (regex.captured_substring (1), regex.captured_substring (2).to_integer)
+					Result.put (regex.captured_substring (2).to_integer, regex.captured_substring (1))
 					regex.next_match
 				end
 			else
 				create Result.make (0)
 			end
 
+		end
+
+	get_search_results: LINKED_LIST[INTEGER]
+			-- Return the ids of the messages in the search result
+		local
+			ids: STRING
+		do
+			create Result.make
+			regex.compile (Search_result_pattern)
+			if regex.matches (text) then
+				ids := regex.captured_substring (1)
+				regex.compile (Integer_pattern)
+				from
+					regex.match (ids)
+				until
+					not regex.has_matched
+				loop
+					Result.extend (regex.captured_substring (0).to_integer)
+					regex.next_match
+				end
+			end
 		end
 
 feature {NONE} -- Constants
@@ -167,6 +188,10 @@ feature {NONE} -- Constants
 
 	Status_data_response_pattern: STRING = "^\* STATUS .* \((.+)\)%R$"
 	Status_data_pattern: STRING = "(MESSAGES|RECENT|UIDNEXT|UIDVALIDITY|UNSEEN) ([0-9]+) ?"
+
+	Search_result_pattern: STRING = "^\* SEARCH ([0-9 ]+)%R$"
+
+	Integer_pattern: STRING = "\d+"
 
 feature {NONE} -- Constants
 
