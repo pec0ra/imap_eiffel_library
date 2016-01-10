@@ -93,8 +93,6 @@ feature -- Basic operations
 			else
 				Result := ""
 			end
-		ensure
-			not_empty: not Result.is_empty
 		end
 
 	get_status: STRING
@@ -176,7 +174,7 @@ feature {NONE} -- Constants
 
 	Capability_pattern: STRING = "(([A-Z]|=|rev|\d|\+|-)+)"
 
-	Capabilities_pattern: STRING = "^\* ([A-Z]|=|rev|\d|\+|-| )*IMAP4rev1([A-Z]|=|rev|\d|\+|-| )*%R$"
+	Capabilities_pattern: STRING = "^\* ([A-Z]|=|rev|\d|\+|-| )*IMAP4rev1([A-Z]|=|rev|\d|\+|-| )*$"
 
 	Untagged_response_pattern: STRING = "^\* (.*)$"
 
@@ -186,10 +184,10 @@ feature {NONE} -- Constants
 
 	Status_pattern: STRING = "^il\d+ (OK|NO|BAD)"
 
-	Status_data_response_pattern: STRING = "^\* STATUS .* \((.+)\)%R$"
+	Status_data_response_pattern: STRING = "^\* STATUS .* \((.+)\)$"
 	Status_data_pattern: STRING = "(MESSAGES|RECENT|UIDNEXT|UIDVALIDITY|UNSEEN) ([0-9]+) ?"
 
-	Search_result_pattern: STRING = "^\* SEARCH ([0-9 ]+)%R$"
+	Search_result_pattern: STRING = "^\* SEARCH ([0-9 ]+)$"
 
 	Integer_pattern: STRING = "\d+"
 

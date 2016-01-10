@@ -108,12 +108,12 @@ feature {NONE} -- Constants
 
 	Tagged_response_pattern: STRING = "^il\d+ OK \[(READ-ONLY|READ-WRITE)].*$"
 
-	Flag_response_pattern: STRING = "^\* FLAGS \((.+)\)%R$"
+	Flag_response_pattern: STRING = "^\* FLAGS \((.+)\)$"
 	Flag_pattern: STRING = "(\\[^ \\]+)"
 
-	Exists_pattern: STRING = "^\* ([0-9]+) EXISTS%R$"
+	Exists_pattern: STRING = "^\* ([0-9]+) EXISTS$"
 
-	Recent_pattern: STRING = "^\* ([0-9]+) RECENT%R$"
+	Recent_pattern: STRING = "^\* ([0-9]+) RECENT$"
 
 	Unseen_pattern: STRING = "^\* OK \[UNSEEN ([0-9]+)].*$"
 

@@ -479,6 +479,37 @@ feature -- Selected commands
 
 		end
 
+	fetch ( first_message: INTEGER; last_message: INTEGER; data_items: LINKED_LIST[STRING] )
+			-- Send a fetch command with sequence set from `first_message' to `last_message' for data items `data_items'
+		require
+			correct_sequence_set: first_message >= 0 and last_message >= first_message
+			data_item_not_empty: data_items /= Void and then not data_items.is_empty
+		local
+			args: LINKED_LIST[STRING]
+			sequence: STRING
+			data: STRING
+		do
+			create args.make
+			sequence := first_message.out
+			if last_message /= first_message then
+				sequence := sequence + ":" + last_message.out
+			end
+			args.extend (sequence)
+
+			data := "("
+			across
+				data_items as item
+			loop
+				data := data + item.item + " "
+			end
+			data := data + ")"
+			args.extend (data)
+
+			network.send_command (get_tag, get_command (Fetch_action), args)
+
+			-- TODO: Get the message info from the response
+		end
+
 
 feature -- Basic Operations
 
