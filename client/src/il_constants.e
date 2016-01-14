@@ -37,5 +37,9 @@ feature -- Constants
 	Uid_validity_status: STRING = "UIDVALIDIY"
 	Unseen_status: STRING = "UNSEEN"
 
+	All_macro: STRING = "ALL"
+	Fast_macro: STRING = "FAST"
+	Full_macro: STRING = "FULL"
+
 
 end

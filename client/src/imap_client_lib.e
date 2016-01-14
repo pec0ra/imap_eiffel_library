@@ -479,23 +479,15 @@ feature -- Selected commands
 
 		end
 
-	fetch ( first_message: INTEGER; last_message: INTEGER; data_items: LINKED_LIST[STRING] )
+	fetch ( first_message: INTEGER; last_message: INTEGER; data_items: LINKED_LIST[STRING] ): HASH_TABLE[IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set from `first_message' to `last_message' for data items `data_items'
+			-- Returns a hash table maping the uid of the message to an il_fetch data structure
 		require
 			correct_sequence_set: first_message >= 0 and last_message >= first_message
 			data_item_not_empty: data_items /= Void and then not data_items.is_empty
 		local
-			args: LINKED_LIST[STRING]
-			sequence: STRING
 			data: STRING
 		do
-			create args.make
-			sequence := first_message.out
-			if last_message /= first_message then
-				sequence := sequence + ":" + last_message.out
-			end
-			args.extend (sequence)
-
 			data := "("
 			across
 				data_items as item
@@ -503,12 +495,39 @@ feature -- Selected commands
 				data := data + item.item + " "
 			end
 			data := data + ")"
-			args.extend (data)
 
-			network.send_command (get_tag, get_command (Fetch_action), args)
+			Result := fetch_string(first_message, last_message, data)
 
-			-- TODO: Get the message info from the response
 		end
+
+	fetch_all ( first_message: INTEGER; last_message: INTEGER): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Send a fetch command with sequence set from `first_message' to `last_message' for macro ALL
+			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		require
+			correct_sequence_set: first_message >= 0 and last_message >= first_message
+		do
+			Result := fetch_string(first_message, last_message, All_macro)
+		end
+
+	fetch_fast ( first_message: INTEGER; last_message: INTEGER): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Send a fetch command with sequence set from `first_message' to `last_message' for macro FAST
+			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		require
+			correct_sequence_set: first_message >= 0 and last_message >= first_message
+		do
+			Result := fetch_string(first_message, last_message, Fast_macro)
+		end
+
+	fetch_full ( first_message: INTEGER; last_message: INTEGER): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Send a fetch command with sequence set from `first_message' to `last_message' for macro FULL
+			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		require
+			correct_sequence_set: first_message >= 0 and last_message >= first_message
+		do
+			Result := fetch_string(first_message, last_message, Full_macro)
+		end
+
+
 
 
 feature -- Basic Operations
@@ -591,6 +610,38 @@ feature {NONE} -- Implementation
 			last_response_received := tag_number
 		ensure
 			Result /= Void
+		end
+
+	fetch_string ( first_message: INTEGER; last_message: INTEGER; data_items: STRING ): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Send a fetch command with sequence set from `first_message' to `last_message' for data items `data_items'
+			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		require
+			correct_sequence_set: first_message >= 0 and last_message >= first_message
+			data_item_not_empty: data_items /= Void and then not data_items.is_empty
+		local
+			args: LINKED_LIST[STRING]
+			sequence: STRING
+			tag: STRING
+			response: IL_SERVER_RESPONSE
+			parser: IL_FETCH_PARSER
+		do
+			create args.make
+			sequence := first_message.out
+			if last_message /= first_message then
+				sequence := sequence + ":" + last_message.out
+			end
+			args.extend (sequence)
+			args.extend (data_items)
+			tag := get_tag
+			network.send_command (tag, get_command (Fetch_action), args)
+			response := get_response (tag)
+
+			if response.status ~ Command_ok_label and then response.untagged_response_count >= 1 then
+				create parser.make_from_response (response)
+				Result := parser.get_data
+			else
+				create Result.make (0)
+			end
 		end
 
  	response_mgr: IL_RESPONSE_MANAGER
