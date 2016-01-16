@@ -527,6 +527,102 @@ feature -- Selected commands
 			Result := fetch_string(a_sequence_set, Full_macro)
 		end
 
+	fetch_string ( a_sequence_set: IL_SEQUENCE_SET; data_items: STRING ): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Send a fetch command with sequence set `a_sequence_set' for data items `data_items'
+			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		require
+			a_sequence_set_not_void: a_sequence_set /= Void
+			data_item_not_empty: data_items /= Void and then not data_items.is_empty
+		do
+			Result := send_fetch (a_sequence_set, data_items, false)
+		end
+
+	fetch_uid ( a_sequence_set: IL_SEQUENCE_SET; data_items: LINKED_LIST[STRING] ): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Send a fetch command with sequence set of uids `a_sequence_set' for data items `data_items'
+			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		require
+			a_sequence_set_not_void: a_sequence_set /= Void
+			data_item_not_empty: data_items /= Void and then not data_items.is_empty
+		local
+			data: STRING
+		do
+			data := "("
+			across
+				data_items as item
+			loop
+				data := data + item.item + " "
+			end
+			data := data + ")"
+
+			Result := fetch_string_uid(a_sequence_set, data)
+
+		end
+
+	fetch_all_uid ( a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Send a fetch command with sequence set of uids `a_sequence_set' for macro ALL
+			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		require
+			a_sequence_set_not_void: a_sequence_set /= Void
+		do
+			Result := fetch_string_uid(a_sequence_set, All_macro)
+		end
+
+	fetch_fast_uid ( a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Send a fetch command with sequence set of uids `a_sequence_set' for macro FAST
+			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		require
+			a_sequence_set_not_void: a_sequence_set /= Void
+		do
+			Result := fetch_string_uid(a_sequence_set, Fast_macro)
+		end
+
+	fetch_full_uid ( a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Send a fetch command with sequence set of uids `a_sequence_set' for macro FULL
+			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		require
+			a_sequence_set_not_void: a_sequence_set /= Void
+		do
+			Result := fetch_string_uid(a_sequence_set, Full_macro)
+		end
+
+	fetch_string_uid ( a_sequence_set: IL_SEQUENCE_SET; data_items: STRING ): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Send a fetch command with sequence set of uids `a_sequence_set' for data items `data_items'
+			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		require
+			a_sequence_set_not_void: a_sequence_set /= Void
+			data_item_not_empty: data_items /= Void and then not data_items.is_empty
+		do
+			Result := send_fetch (a_sequence_set, data_items, true)
+		end
+
+	copy_messages ( a_sequence_set: IL_SEQUENCE_SET; a_mailbox_name: STRING)
+			-- Copy the messages in `a_sequence_set' to mailbox `a_mailbox_name'
+		require
+			a_sequence_set_not_void: a_sequence_set /= Void
+			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
+		local
+			args: LINKED_LIST[STRING]
+		do
+			create args.make
+			args.extend (a_sequence_set.string)
+			args.extend (a_mailbox_name)
+			network.send_command (get_tag, get_command (Copy_action), args)
+		end
+
+	copy_messages_uid ( a_sequence_set: IL_SEQUENCE_SET; a_mailbox_name: STRING)
+			-- Copy the messages with uids in `a_sequence_set' to mailbox `a_mailbox_name'
+		require
+			a_sequence_set_not_void: a_sequence_set /= Void
+			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
+		local
+			args: LINKED_LIST[STRING]
+		do
+			create args.make
+			args.extend (a_sequence_set.string)
+			args.extend (a_mailbox_name)
+			network.send_command (get_tag, get_command (Uid_copy_action), args)
+		end
+
 
 
 
@@ -612,8 +708,9 @@ feature {NONE} -- Implementation
 			Result /= Void
 		end
 
-	fetch_string ( a_sequence_set: IL_SEQUENCE_SET; data_items: STRING ): HASH_TABLE[IL_FETCH, NATURAL]
+	send_fetch ( a_sequence_set: IL_SEQUENCE_SET; data_items: STRING; is_uid: BOOLEAN ): HASH_TABLE[IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set `a_sequence_set' for data items `data_items'
+			-- The sequence set will represent uids iff `is_uid' is set to true
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
@@ -623,12 +720,18 @@ feature {NONE} -- Implementation
 			tag: STRING
 			response: IL_SERVER_RESPONSE
 			parser: IL_FETCH_PARSER
+			command: STRING
 		do
 			create args.make
 			args.extend (a_sequence_set.string)
 			args.extend (data_items)
 			tag := get_tag
-			network.send_command (tag, get_command (Fetch_action), args)
+			if is_uid then
+				command := get_command(Uid_fetch_action)
+			else
+				command := get_command (Fetch_action)
+			end
+			network.send_command (tag, command, args)
 			response := get_response (tag)
 
 			if response.status ~ Command_ok_label and then response.untagged_response_count >= 1 then
