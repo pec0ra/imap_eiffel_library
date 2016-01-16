@@ -11,6 +11,7 @@ create
 	make_from_string,
 	make_from_natural_range,
 	make_from_string_range,
+	make_from_list,
 	make_wildcard
 
 feature {NONE} -- Initialization
@@ -48,6 +49,20 @@ feature {NONE} -- Initialization
 			if last_message /~ first_message then
 				string := string + ":" + last_message
 			end
+		end
+
+	make_from_list (a_list: LIST[NATURAL])
+			-- Set the sequence to the list `a_list'
+		require
+			a_list_not_empty: a_list /= Void and then not a_list.is_empty
+		do
+			create string.make_empty
+			across
+				a_list as n
+			loop
+				string := string + n.item.out + ","
+			end
+			string.remove_tail (1)
 		end
 
 	make_wildcard

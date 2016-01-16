@@ -31,13 +31,14 @@ feature -- Access
 	Copy_action: NATURAL = 20
 	Uid_copy_action: NATURAL = 21
 	Uid_fetch_action: NATURAL = 22
-	Noop_action: NATURAL = 23
-	Logout_action: NATURAL = 24
+	Uid_store_action: NATURAL = 23
+	Noop_action: NATURAL = 24
+	Logout_action: NATURAL = 25
 
 
 
 	min_action: NATURAL = 1
-	max_action: NATURAL = 24
+	max_action: NATURAL = 25
 
 feature -- Basic Operations
 
@@ -95,6 +96,8 @@ feature -- Basic Operations
 				Result := "UID COPY"
 			when Uid_fetch_action then
 				Result := "UID FETCH"
+			when Uid_store_action then
+				Result := "UID STORE"
 			else
 				Result := ""
 			end

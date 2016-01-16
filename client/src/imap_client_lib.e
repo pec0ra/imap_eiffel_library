@@ -623,6 +623,152 @@ feature -- Selected commands
 			network.send_command (get_tag, get_command (Uid_copy_action), args)
 		end
 
+	store (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST[STRING])
+			-- Alter data for messages in `a_sequence_set'. Change the messages according to `data_item_name' with arguments `data_item_values'
+		require
+			a_sequence_set_not_void: a_sequence_set /= Void
+			data_item_name_not_empty: data_item_name /= Void and then not data_item_name.is_empty
+			data_item_value_not_void: data_item_values /= Void
+		local
+			args: LINKED_LIST[STRING]
+			value_list: STRING
+		do
+			create args.make
+			args.extend (a_sequence_set.string)
+			args.extend (data_item_name)
+
+			create value_list.make_empty
+			across
+				data_item_values as value
+			loop
+				value_list.append (value.item + " ")
+			end
+			if not value_list.is_empty then
+				value_list.remove_tail (1)
+			end
+			value_list.prepend ("(")
+			value_list.append (")")
+			args.extend (value_list)
+
+			network.send_command (get_tag, get_command (Store_action), args)
+		end
+
+	get_store (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST[STRING]): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Alter data for messages in `a_sequence_set'. Change the messages according to `data_item_name' with arguments `data_item_values'
+			-- Returns a hash table maping the uid of the message to an il_fetch data structure for every FETCH response received
+		require
+			a_sequence_set_not_void: a_sequence_set /= Void
+			data_item_name_not_empty: data_item_name /= Void and then not data_item_name.is_empty
+			data_item_value_not_void: data_item_values /= Void
+		local
+			args: LINKED_LIST[STRING]
+			value_list: STRING
+			tag: STRING
+			response: IL_SERVER_RESPONSE
+			parser: IL_FETCH_PARSER
+		do
+			tag := get_tag
+			create args.make
+			args.extend (a_sequence_set.string)
+			args.extend (data_item_name)
+
+			create value_list.make_empty
+			across
+				data_item_values as value
+			loop
+				value_list.append (value.item + " ")
+			end
+			if not value_list.is_empty then
+				value_list.remove_tail (1)
+			end
+			value_list.prepend ("(")
+			value_list.append (")")
+			args.extend (value_list)
+
+			network.send_command (tag, get_command (Store_action), args)
+			response := get_response (tag)
+
+			if response.status ~ Command_ok_label and then response.untagged_response_count >= 1 then
+				create parser.make_from_response (response)
+				Result := parser.get_data
+			else
+				create Result.make (0)
+			end
+		end
+
+	store_uid (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST[STRING])
+			-- Alter data for messages with uid in `a_sequence_set'. Change the messages according to `data_item_name' with arguments `data_item_values'
+		require
+			a_sequence_set_not_void: a_sequence_set /= Void
+			data_item_name_not_empty: data_item_name /= Void and then not data_item_name.is_empty
+			data_item_value_not_void: data_item_values /= Void
+		local
+			args: LINKED_LIST[STRING]
+			value_list: STRING
+		do
+			create args.make
+			args.extend (a_sequence_set.string)
+			args.extend (data_item_name)
+
+			create value_list.make_empty
+			across
+				data_item_values as value
+			loop
+				value_list.append (value.item + " ")
+			end
+			if not value_list.is_empty then
+				value_list.remove_tail (1)
+			end
+			value_list.prepend ("(")
+			value_list.append (")")
+			args.extend (value_list)
+
+			network.send_command (get_tag, get_command (Uid_store_action), args)
+		end
+
+	get_store_uid (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST[STRING]): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Alter data for messages with uid in `a_sequence_set'. Change the messages according to `data_item_name' with arguments `data_item_values'
+			-- Returns a hash table maping the uid of the message to an il_fetch data structure for every FETCH response received
+		require
+			a_sequence_set_not_void: a_sequence_set /= Void
+			data_item_name_not_empty: data_item_name /= Void and then not data_item_name.is_empty
+			data_item_value_not_void: data_item_values /= Void
+		local
+			args: LINKED_LIST[STRING]
+			value_list: STRING
+			tag: STRING
+			response: IL_SERVER_RESPONSE
+			parser: IL_FETCH_PARSER
+		do
+			tag := get_tag
+			create args.make
+			args.extend (a_sequence_set.string)
+			args.extend (data_item_name)
+
+			create value_list.make_empty
+			across
+				data_item_values as value
+			loop
+				value_list.append (value.item + " ")
+			end
+			if not value_list.is_empty then
+				value_list.remove_tail (1)
+			end
+			value_list.prepend ("(")
+			value_list.append (")")
+			args.extend (value_list)
+
+			network.send_command (tag, get_command (Uid_store_action), args)
+			response := get_response (tag)
+
+			if response.status ~ Command_ok_label and then response.untagged_response_count >= 1 then
+				create parser.make_from_response (response)
+				Result := parser.get_data
+			else
+				create Result.make (0)
+			end
+		end
+
 
 
 
