@@ -178,7 +178,7 @@ feature {NONE} -- Constants
 
 	Untagged_response_pattern: STRING = "^\* (.*)$"
 
-	Tag_pattern: STRING = "^(\*|il\d+)"
+	Tag_pattern: STRING = "^(\*|il\d+|\+)"
 
 	Integer_from_tag_pattern: STRING = "^il(\d+)$"
 

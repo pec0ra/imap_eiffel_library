@@ -27,6 +27,7 @@ feature {NONE} -- Initialization
 			network_set: network = a_network
 		end
 
+
 feature -- Basic operations
 
 	was_connection_ok: BOOLEAN
@@ -40,6 +41,8 @@ feature -- Basic operations
 			Result := parser.matches_connection_ok
 		end
 
+
+
 	update_responses (tag: STRING)
 			-- Updates the response table with responses up to `tag'
 		require
@@ -47,7 +50,7 @@ feature -- Basic operations
 		do
 			from
 			until
-				responses_table.has (tag) or not network.is_connected
+				responses_table.has (tag) or not network.is_connected or network.needs_continuation
 			loop
 				get_next_response
 			end
@@ -62,7 +65,7 @@ feature -- Basic operations
 		do
 			from
 			until
-				responses_table.has (tag) or not network.is_connected
+				responses_table.has (tag) or not network.is_connected or network.needs_continuation
 			loop
 				get_next_response
 			end
@@ -94,7 +97,6 @@ feature {NONE} -- Implementation
 		local
 			response, tag, prev_response: STRING
 			parser: IL_PARSER
-			server_response: detachable IL_SERVER_RESPONSE
 		do
 			response := network.get_line
 
@@ -104,44 +106,22 @@ feature {NONE} -- Implementation
 					create parser.make_from_text (response)
 					tag := parser.get_tag
 
-						-- When the server sends a BYE answer, we are in a disconnected state	
+
 					if parser.matches_bye then
-						network.set_state ({IL_NETWORK_STATE}.Not_connected_state)
-						debugger.dprint (debugger.Dwarning, "BYE answer received. We are now disconnected")
+						bye_action
 
-						-- When the next response is untagged we create a temporary entry in the `responses_table' to store the new IL_SERVER_RESPONSE
 					elseif tag ~ "*"then
-						if responses_table.has (Next_response_tag) then
-							server_response := responses_table.at (Next_response_tag)
-							if server_response = Void then
-								create server_response.make_empty
-							end
-						else
-							create server_response.make_empty
-							responses_table.put (server_response, Next_response_tag)
-						end
-						server_response.add_untagged_response (response)
+						untagged_action (response)
 
-						-- When the tag is empty, it means this is the continuation of the previous message
+					elseif tag ~ "+" then
+						-- When the tag is "+", the server needs the continuation of the request
+						network.set_needs_continuation (true)
+
 					elseif tag.is_empty then
-						check previous_response_exists: responses_table.has (Next_response_tag) end
-						server_response := responses_table.at (Next_response_tag)
-						if server_response /= Void then
-							server_response.untagged_responses.last.append (" " + response)
-						end
+						empty_action (response)
 
-						-- When the next response is tagged, we check for a temporary entry in the `response_table'. If it exists this will be the IL_SERVER_RESPONSE.
 					else
-						if responses_table.has (Next_response_tag) then
-							server_response := responses_table.at (Next_response_tag)
-							responses_table.remove (Next_response_tag)
-						end
-						if server_response = Void then
-							create server_response.make_empty
-						end
-						server_response.set_tagged_text (response)
-						server_response.set_status (parser.get_status)
-						responses_table.put (server_response, tag)
+						tagged_action (response, parser, tag)
 					end
 				end
 			else
@@ -149,6 +129,63 @@ feature {NONE} -- Implementation
 				debugger.dprint (debugger.dwarning, "Empty answer received. We are now disconnected")
 			end
 		end
+
+	bye_action
+			-- When the response is a bye response, we are in a disconnected state
+		do
+			network.set_state ({IL_NETWORK_STATE}.Not_connected_state)
+			debugger.dprint (debugger.Dwarning, "BYE answer received. We are now disconnected")
+		end
+
+	untagged_action (response: STRING)
+			-- When the response is an untagged response
+		local
+			server_response: detachable IL_SERVER_RESPONSE
+		do
+			-- We create a temporary entry in the `responses_table' to store the new IL_SERVER_RESPONSE
+			if responses_table.has (Next_response_tag) then
+				server_response := responses_table.at (Next_response_tag)
+				if server_response = Void then
+					create server_response.make_empty
+				end
+			else
+				create server_response.make_empty
+				responses_table.put (server_response, Next_response_tag)
+			end
+			server_response.add_untagged_response (response)
+		end
+
+
+	empty_action (response: STRING)
+			-- When the response has an empty tag
+		local
+			server_response: detachable IL_SERVER_RESPONSE
+		do
+			-- When the tag is empty, it means this is the continuation of the previous message
+			check previous_response_exists: responses_table.has (Next_response_tag) end
+			server_response := responses_table.at (Next_response_tag)
+			if server_response /= Void then
+				server_response.untagged_responses.last.append (" " + response)
+			end
+		end
+
+	tagged_action (response: STRING; parser: IL_PARSER; tag: STRING)
+			-- When the response is a tagged response
+			local
+				server_response: detachable IL_SERVER_RESPONSE
+			do
+				-- We check for a temporary entry in the `response_table'. If it exists this will be the IL_SERVER_RESPONSE.
+				if responses_table.has (Next_response_tag) then
+					server_response := responses_table.at (Next_response_tag)
+					responses_table.remove (Next_response_tag)
+				end
+				if server_response = Void then
+					create server_response.make_empty
+				end
+				server_response.set_tagged_text (response)
+				server_response.set_status (parser.get_status)
+				responses_table.put (server_response, tag)
+			end
 
 	responses_table: HASH_TABLE [IL_SERVER_RESPONSE, STRING]
 

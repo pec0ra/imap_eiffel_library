@@ -46,6 +46,11 @@ feature -- Basic operation
 			state = a_state
 		end
 
+	set_needs_continuation (bool: BOOLEAN)
+		do
+			needs_continuation := bool
+		end
+
 	update_imap_state(a_response: IL_SERVER_RESPONSE; a_state: NATURAL)
 			-- Checks if the response `a_response' is OK and, if it is the case, updates the state to `a_state'
 		require
@@ -62,6 +67,9 @@ feature -- Access
 
 	state: NATURAL
 			-- Current state of the connection
+
+	needs_continuation: BOOLEAN
+			-- Set to true iff server sent a command continuation request
 
 feature -- Implementation
 

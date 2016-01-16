@@ -57,6 +57,7 @@ feature -- Basic functions
 		require
 			tag_not_empty: not tag.is_empty
 			command_not_empty: not command.is_empty
+			command_continuation_not_needed: not needs_continuation
 			-- valid_command: TO maybe DO
 		local
 			str: STRING
@@ -69,7 +70,16 @@ feature -- Basic functions
 				end
 			end
 			send_raw_command(str)
-		ensure
+		end
+
+	send_command_continuation (a_continuation: STRING)
+			-- Send the continuation `a_continuation' of a command
+		require
+			a_continuation_not_empty: a_continuation /= Void and then not a_continuation.is_empty
+			command_continuation_needed: needs_continuation
+		do
+			send_raw_command(a_continuation)
+			needs_continuation := false
 		end
 
 	send_raw_command(command: STRING)

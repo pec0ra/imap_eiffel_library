@@ -774,6 +774,24 @@ feature -- Selected commands
 
 feature -- Basic Operations
 
+	send_command( a_command: STRING; arguments: LIST[STRING])
+			-- Send the command `a_command' with argument list `arguments'
+		require
+			a_command_not_empty: a_command /= Void and then not a_command.is_empty
+			arguments_not_void: arguments /= Void
+		do
+			network.send_command (get_tag, a_command, arguments)
+		end
+
+	send_command_continuation (a_continuation: STRING)
+			-- Send the command continuation `a_continuation'
+		require
+			a_continuation_not_empty: a_continuation /= Void and then not a_continuation.is_empty
+			needs_continuation: needs_continuation
+		do
+			network.send_command_continuation (a_continuation)
+		end
+
 	is_connected:BOOLEAN
 			-- Returns true iff the network is connected to the socket
 		do
@@ -803,11 +821,24 @@ feature -- Basic Operations
 
 	get_last_response: IL_SERVER_RESPONSE
 			-- Returns the response for the last command sent
-	do
-		Result := get_response (current_tag)
-	ensure
-		Result /= Void
-	end
+		do
+			Result := get_response (current_tag)
+		ensure
+			Result /= Void
+		end
+
+	receive
+			-- Read socket for responses
+		do
+			response_mgr.update_responses (current_tag)
+		end
+
+	needs_continuation: BOOLEAN
+			-- Return true iff the last response from the server was a command continuation request
+		do
+			receive
+			Result := network.needs_continuation
+		end
 
 feature -- Access
 
