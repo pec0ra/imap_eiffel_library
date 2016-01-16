@@ -479,13 +479,11 @@ feature -- Selected commands
 
 		end
 
-	fetch ( first_message: STRING; last_message: STRING; data_items: LINKED_LIST[STRING] ): HASH_TABLE[IL_FETCH, NATURAL]
-			-- Send a fetch command with sequence set from `first_message' to `last_message' for data items `data_items'
-			-- `first_message' and `last_message' can either be "*" or a string representing a natural number
+	fetch ( a_sequence_set: IL_SEQUENCE_SET; data_items: LINKED_LIST[STRING] ): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Send a fetch command with sequence set `a_sequence_set' for data items `data_items'
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
 		require
-			correct_first_message: first_message ~ "*" or else (first_message.is_integer and then first_message.to_integer >= 0)
-			correct_last_message: last_message ~ "*" or else (last_message.is_integer and then ((first_message ~ "*" and last_message.to_integer >= 0) or else last_message.to_integer >= first_message.to_integer))
+			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_not_empty: data_items /= Void and then not data_items.is_empty
 		local
 			data: STRING
@@ -498,41 +496,35 @@ feature -- Selected commands
 			end
 			data := data + ")"
 
-			Result := fetch_string(first_message, last_message, data)
+			Result := fetch_string(a_sequence_set, data)
 
 		end
 
-	fetch_all ( first_message: STRING; last_message: STRING): HASH_TABLE[IL_FETCH, NATURAL]
-			-- Send a fetch command with sequence set from `first_message' to `last_message' for macro ALL
-			-- `first_message' and `last_message' can either be "*" or a string representing a natural number
+	fetch_all ( a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Send a fetch command with sequence set `a_sequence_set' for macro ALL
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
 		require
-			correct_first_message: first_message ~ "*" or else (first_message.is_integer and then first_message.to_integer >= 0)
-			correct_last_message: last_message ~ "*" or else (last_message.is_integer and then ((first_message ~ "*" and last_message.to_integer >= 0) or else last_message.to_integer >= first_message.to_integer))
+			a_sequence_set_not_void: a_sequence_set /= Void
 		do
-			Result := fetch_string(first_message, last_message, All_macro)
+			Result := fetch_string(a_sequence_set, All_macro)
 		end
 
-	fetch_fast ( first_message: STRING; last_message: STRING): HASH_TABLE[IL_FETCH, NATURAL]
-			-- Send a fetch command with sequence set from `first_message' to `last_message' for macro FAST
-			-- `first_message' and `last_message' can either be "*" or a string representing a natural number
+	fetch_fast ( a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Send a fetch command with sequence set `a_sequence_set' for macro FAST
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
 		require
-			correct_first_message: first_message ~ "*" or else (first_message.is_integer and then first_message.to_integer >= 0)
-			correct_last_message: last_message ~ "*" or else (last_message.is_integer and then ((first_message ~ "*" and last_message.to_integer >= 0) or else last_message.to_integer >= first_message.to_integer))
+			a_sequence_set_not_void: a_sequence_set /= Void
 		do
-			Result := fetch_string(first_message, last_message, Fast_macro)
+			Result := fetch_string(a_sequence_set, Fast_macro)
 		end
 
-	fetch_full ( first_message: STRING; last_message: STRING): HASH_TABLE[IL_FETCH, NATURAL]
-			-- Send a fetch command with sequence set from `first_message' to `last_message' for macro FULL
-			-- `first_message' and `last_message' can either be "*" or a string representing a natural number
+	fetch_full ( a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Send a fetch command with sequence set `a_sequence_set' for macro FULL
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
 		require
-			correct_first_message: first_message ~ "*" or else (first_message.is_integer and then first_message.to_integer >= 0)
-			correct_last_message: last_message ~ "*" or else (last_message.is_integer and then ((first_message ~ "*" and last_message.to_integer >= 0) or else last_message.to_integer >= first_message.to_integer))
+			a_sequence_set_not_void: a_sequence_set /= Void
 		do
-			Result := fetch_string(first_message, last_message, Full_macro)
+			Result := fetch_string(a_sequence_set, Full_macro)
 		end
 
 
@@ -620,27 +612,20 @@ feature {NONE} -- Implementation
 			Result /= Void
 		end
 
-	fetch_string ( first_message: STRING; last_message: STRING; data_items: STRING ): HASH_TABLE[IL_FETCH, NATURAL]
-			-- Send a fetch command with sequence set from `first_message' to `last_message' for data items `data_items'
-			-- `first_message' and `last_message' can either be "*" or a string representing a natural number
+	fetch_string ( a_sequence_set: IL_SEQUENCE_SET; data_items: STRING ): HASH_TABLE[IL_FETCH, NATURAL]
+			-- Send a fetch command with sequence set `a_sequence_set' for data items `data_items'
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
 		require
-			correct_first_message: first_message ~ "*" or else (first_message.is_integer and then first_message.to_integer >= 0)
-			correct_last_message: last_message ~ "*" or else (last_message.is_integer and then ((first_message ~ "*" and last_message.to_integer >= 0) or else last_message.to_integer >= first_message.to_integer))
+			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_not_empty: data_items /= Void and then not data_items.is_empty
 		local
 			args: LINKED_LIST[STRING]
-			sequence: STRING
 			tag: STRING
 			response: IL_SERVER_RESPONSE
 			parser: IL_FETCH_PARSER
 		do
 			create args.make
-			sequence := first_message
-			if last_message /~ first_message then
-				sequence := sequence + ":" + last_message
-			end
-			args.extend (sequence)
+			args.extend (a_sequence_set.string)
 			args.extend (data_items)
 			tag := get_tag
 			network.send_command (tag, get_command (Fetch_action), args)
