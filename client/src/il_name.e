@@ -29,11 +29,11 @@ feature -- Access
 
 	raw_path: STRING
 
-	path: LINKED_LIST[STRING]
+	path: LINKED_LIST [STRING]
 
 	hierarchy_delimiter: CHARACTER
 
-	attributes: LINKED_LIST[STRING]
+	attributes: LINKED_LIST [STRING]
 
 feature -- Basic Operations
 
@@ -65,6 +65,5 @@ feature -- Basic Operations
 		do
 			attributes.extend (a_attribute)
 		end
-
 
 end

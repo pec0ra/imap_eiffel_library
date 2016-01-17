@@ -8,17 +8,15 @@ class
 	IL_SERVER_RESPONSE
 
 inherit
+
 	IL_CONSTANTS
 
 create
-	make_with_tagged_text,
-	make_empty,
-	make_error
-
+	make_with_tagged_text, make_empty, make_error
 
 feature {NONE} -- Initialization
 
-	make_with_tagged_text ( a_text: STRING)
+	make_with_tagged_text (a_text: STRING)
 			-- Initialize with `a_text' as `tagged_text'
 		require
 			a_text_not_empty: a_text /= Void and then not a_text.is_empty
@@ -53,11 +51,10 @@ feature -- Access
 
 	status: STRING
 
-	untagged_responses: LINKED_LIST[STRING]
+	untagged_responses: LINKED_LIST [STRING]
 
 	is_error: BOOLEAN
 			-- Set to true if the response could not be received from the server
-
 
 feature -- Basic operations
 
@@ -66,7 +63,7 @@ feature -- Basic operations
 		require
 			a_text_not_empty: a_text /= Void and then not a_text.is_empty
 		do
-			untagged_responses.extend(a_text)
+			untagged_responses.extend (a_text)
 		end
 
 	set_tagged_text (a_text: STRING)
@@ -96,7 +93,7 @@ feature -- Basic operations
 	set_status (a_status: STRING)
 			-- Sets the status to `a_status'
 		require
-			correct_status: a_status.is_equal(Command_ok_label) or a_status.is_equal(Command_bad_label) or a_status.is_equal(Command_no_label)
+			correct_status: a_status.is_equal (Command_ok_label) or a_status.is_equal (Command_bad_label) or a_status.is_equal (Command_no_label)
 		do
 			status := a_status
 		ensure

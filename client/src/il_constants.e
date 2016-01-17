@@ -15,14 +15,11 @@ feature -- Constants
 
 	Default_address: STRING = "localhost"
 
-
 	Command_ok_label: STRING = "OK"
 	Command_bad_label: STRING = "BAD"
 	Command_no_label: STRING = "NO"
 
-
 	Tag_prefix: STRING = "il"
-
 
 	Next_response_tag: STRING = "NEXT_RESPONSE"
 
@@ -40,6 +37,5 @@ feature -- Constants
 	All_macro: STRING = "ALL"
 	Fast_macro: STRING = "FAST"
 	Full_macro: STRING = "FULL"
-
 
 end

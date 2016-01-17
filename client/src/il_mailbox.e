@@ -26,8 +26,9 @@ feature -- Access
 
 	name: STRING
 
-	flags: LINKED_LIST[STRING]
-	permanent_flags: LINKED_LIST[STRING]
+	flags: LINKED_LIST [STRING]
+
+	permanent_flags: LINKED_LIST [STRING]
 
 	exists: INTEGER
 
@@ -68,12 +69,12 @@ feature -- Basic Operations
 			uid_validity := n
 		end
 
-	set_flags (a_flags: LINKED_LIST[STRING])
+	set_flags (a_flags: LINKED_LIST [STRING])
 		do
 			flags := a_flags
 		end
 
-	set_permanent_flags (a_permanent_flags: LINKED_LIST[STRING])
+	set_permanent_flags (a_permanent_flags: LINKED_LIST [STRING])
 		do
 			permanent_flags := a_permanent_flags
 		end
@@ -82,6 +83,5 @@ feature -- Basic Operations
 		do
 			is_read_only := b
 		end
-
 
 end

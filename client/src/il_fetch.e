@@ -12,7 +12,7 @@ create
 
 feature {NONE} -- Initialization
 
-	make_with_uid ( a_uid: NATURAL )
+	make_with_uid (a_uid: NATURAL)
 			-- set `uid' to `a_uid'
 		do
 			uid := a_uid
@@ -26,6 +26,7 @@ feature -- Access
 	uid: NATURAL
 			-- The unique id of the fetched message
 
-	data: HASH_TABLE[STRING, STRING]
+	data: HASH_TABLE [STRING, STRING]
 			-- Matches data item names to their value
+
 end

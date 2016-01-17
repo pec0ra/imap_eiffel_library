@@ -8,11 +8,7 @@ class
 	IL_SEQUENCE_SET
 
 create
-	make_from_string,
-	make_from_natural_range,
-	make_from_string_range,
-	make_from_list,
-	make_wildcard
+	make_from_string, make_from_natural_range, make_from_string_range, make_from_list, make_wildcard
 
 feature {NONE} -- Initialization
 
@@ -51,7 +47,7 @@ feature {NONE} -- Initialization
 			end
 		end
 
-	make_from_list (a_list: LIST[NATURAL])
+	make_from_list (a_list: LIST [NATURAL])
 			-- Set the sequence to the list `a_list'
 		require
 			a_list_not_empty: a_list /= Void and then not a_list.is_empty
@@ -80,4 +76,5 @@ feature -- Access
 
 invariant
 	string_not_empty: not string.is_empty
+
 end

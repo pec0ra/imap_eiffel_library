@@ -17,14 +17,13 @@ feature {NONE} -- Initialization
 			debug_on := true
 		end
 
-
 feature -- Basic operation
 
-	dprint (a_tag: STRING; message: STRING )
+	dprint (a_tag: STRING; message: STRING)
 			-- Print message if debugging is active
 		do
 			if debug_on then
-				print(Debug_tag + a_tag + message)
+				print (Debug_tag + a_tag + message)
 				io.put_new_line
 			end
 		end
@@ -45,11 +44,10 @@ feature -- Constants
 
 	Dsending: STRING = "SENDING: "
 
-
 feature {NONE} -- Implementation
 
 	debug_on: BOOLEAN
 
-	Debug_tag: STRING = "	DEBUG: "
+	Debug_tag: STRING = "%TDEBUG: "
 
 end

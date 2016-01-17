@@ -8,10 +8,11 @@ class
 	IL_SSL_NETWORK
 
 inherit
+
 	IL_NETWORK
-	redefine
-		socket
-	end
+		redefine
+			socket
+		end
 
 create
 	make_with_address_and_port
@@ -19,6 +20,6 @@ create
 feature -- Access
 
 	socket: SSL_NETWORK_STREAM_SOCKET
-		-- The main connection to the server
+			-- The main connection to the server
 
 end

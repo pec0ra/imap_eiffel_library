@@ -108,8 +108,4 @@ feature -- Basic Operations
 			result_set: not Result.is_empty
 		end
 
-feature {NONE} -- Implementation
-
-
-
 end

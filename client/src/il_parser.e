@@ -1,5 +1,4 @@
 note
-
 	description: "Summary description for {IL_PARSER}."
 	author: ""
 	date: "$Date$"
@@ -9,7 +8,9 @@ class
 	IL_PARSER
 
 inherit
+
 	IL_CONSTANTS
+
 	IL_IMAP_ACTION
 
 create
@@ -31,10 +32,9 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	text: STRING
-		-- The string we need to parse
+			-- The string we need to parse
 
 	regex: RX_PCRE_REGULAR_EXPRESSION
-
 
 feature -- Basic operations
 
@@ -45,14 +45,12 @@ feature -- Basic operations
 			Result := regex.matches (text)
 		end
 
-	match_capabilities: LINKED_LIST[STRING]
+	match_capabilities: LINKED_LIST [STRING]
 			-- Returns a list of all the capabilities matched in text
 			-- Returns an empty list if `text' doesn't match a correct capability response
 		do
 			regex.compile (Capabilities_pattern)
-
 			create Result.make
-
 			if regex.matches (text) then
 				create regex.make
 				regex.compile (Capability_pattern)
@@ -64,7 +62,6 @@ feature -- Basic operations
 					Result.extend (regex.captured_substring (0))
 					regex.next_match
 				end
-
 				Result.extend (get_command (Noop_action))
 				Result.extend (get_command (Capability_action))
 				Result.extend (get_command (Logout_action))
@@ -79,13 +76,13 @@ feature -- Basic operations
 		end
 
 	get_text: STRING
-		-- Returns the text
+			-- Returns the text
 		do
 			Result := text
 		end
 
 	get_tag: STRING
-		-- Returns the tag from the text
+			-- Returns the tag from the text
 		do
 			regex.compile (Tag_pattern)
 			if regex.matches (text) then
@@ -105,7 +102,7 @@ feature -- Basic operations
 				Result := ""
 			end
 		ensure
-			correct_status: Result.is_equal(Command_ok_label) or Result.is_equal(Command_bad_label) or Result.is_equal(Command_no_label)
+			correct_status: Result.is_equal (Command_ok_label) or Result.is_equal (Command_bad_label) or Result.is_equal (Command_no_label)
 		end
 
 	get_number: INTEGER
@@ -119,7 +116,7 @@ feature -- Basic operations
 			end
 		end
 
-	get_status_data: HASH_TABLE[INTEGER, STRING]
+	get_status_data: HASH_TABLE [INTEGER, STRING]
 			-- Return the status data contained in the untagged response `text'
 		local
 			data: STRING
@@ -127,8 +124,6 @@ feature -- Basic operations
 			regex.compile (Status_data_response_pattern)
 			if regex.matches (text) then
 				data := regex.captured_substring (1)
-
-
 				regex.compile (Status_data_pattern)
 				create Result.make (0)
 				from
@@ -142,10 +137,9 @@ feature -- Basic operations
 			else
 				create Result.make (0)
 			end
-
 		end
 
-	get_search_results: LINKED_LIST[INTEGER]
+	get_search_results: LINKED_LIST [INTEGER]
 			-- Return the ids of the messages in the search result
 		local
 			ids: STRING
@@ -185,6 +179,7 @@ feature {NONE} -- Constants
 	Status_pattern: STRING = "^il\d+ (OK|NO|BAD)"
 
 	Status_data_response_pattern: STRING = "^\* STATUS .* \((.+)\)$"
+
 	Status_data_pattern: STRING = "(MESSAGES|RECENT|UIDNEXT|UIDVALIDITY|UNSEEN) ([0-9]+) ?"
 
 	Search_result_pattern: STRING = "^\* SEARCH ([0-9 ]+)$"
@@ -198,6 +193,5 @@ feature {NONE} -- Constants
 	Command_result_position: INTEGER = 2
 
 	Untagged_label: String = "*"
-
 
 end
