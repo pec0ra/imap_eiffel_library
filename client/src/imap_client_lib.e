@@ -99,7 +99,7 @@ feature -- Basic Commands
 	logout
 			-- Attempt to logout
 		do
-			network.send_command (get_tag, get_command (Logout_action), create {ARRAYED_LIST[STRING]}.make (0))
+			send_command (get_command (Logout_action), create {ARRAYED_LIST[STRING]}.make (0))
 		end
 
 	get_capability: LINKED_LIST[STRING]
@@ -148,7 +148,7 @@ feature -- Not authenticated commands
 			args: LINKED_LIST[STRING]
 		do
 			create args.make
-			network.send_command (get_tag, get_command(Starttls_action), args)
+			send_command (get_command(Starttls_action), args)
 		end
 
 	login ( a_user_name: STRING; a_password: STRING)
@@ -161,7 +161,7 @@ feature -- Not authenticated commands
 			create args.make
 			args.extend (a_user_name)
 			args.extend (a_password)
-			network.send_command (get_tag, get_command (Login_action), args)
+			send_command (get_command (Login_action), args)
 			network.update_imap_state(response_mgr.read_response (current_tag), {IL_NETWORK_STATE}.authenticated_state)
 		end
 
@@ -225,7 +225,7 @@ feature -- Authenticated commands
 		do
 			create args.make
 			args.extend (a_mailbox_name)
-			network.send_command (get_tag, get_command (Create_action), args)
+			send_command (get_command (Create_action), args)
 		end
 
 	delete_mailbox ( a_mailbox_name: STRING )
@@ -237,7 +237,7 @@ feature -- Authenticated commands
 		do
 			create args.make
 			args.extend (a_mailbox_name)
-			network.send_command (get_tag, get_command (Delete_action), args)
+			send_command (get_command (Delete_action), args)
 		end
 
 	rename_mailbox ( a_mailbox_name: STRING; a_new_name: STRING )
@@ -251,7 +251,7 @@ feature -- Authenticated commands
 			create args.make
 			args.extend (a_mailbox_name)
 			args.extend (a_new_name)
-			network.send_command (get_tag, get_command (Rename_action), args)
+			send_command (get_command (Rename_action), args)
 		end
 
 
@@ -264,7 +264,7 @@ feature -- Authenticated commands
 		do
 			create args.make
 			args.extend (a_mailbox_name)
-			network.send_command (get_tag, get_command (Subscribe_action), args)
+			send_command (get_command (Subscribe_action), args)
 		end
 
 	unsubscribe ( a_mailbox_name: STRING )
@@ -276,7 +276,7 @@ feature -- Authenticated commands
 		do
 			create args.make
 			args.extend (a_mailbox_name)
-			network.send_command (get_tag, get_command (Unsubscribe_action), args)
+			send_command (get_command (Unsubscribe_action), args)
 		end
 
 	list ( a_reference_name: STRING; a_name: STRING )
@@ -290,7 +290,7 @@ feature -- Authenticated commands
 			create args.make
 			args.extend ("%"" + a_reference_name + "%"")
 			args.extend ("%"" + a_name + "%"")
-			network.send_command (get_tag, get_command (List_action), args)
+			send_command (get_command (List_action), args)
 		end
 
 	get_list ( a_reference_name: STRING; a_name: STRING ): LINKED_LIST[IL_NAME]
@@ -331,7 +331,7 @@ feature -- Authenticated commands
 			create args.make
 			args.extend ("%"" + a_reference_name + "%"")
 			args.extend ("%"" + a_name + "%"")
-			network.send_command (get_tag, get_command (Lsub_action), args)
+			send_command (get_command (Lsub_action), args)
 		end
 
 	get_lsub ( a_reference_name: STRING; a_name: STRING ): LINKED_LIST[IL_NAME]
@@ -361,28 +361,20 @@ feature -- Authenticated commands
 
 		end
 
-	get_status ( a_mailbox_name: STRING; status_data: LINKED_LIST[STRING] ): HASH_TABLE[INTEGER, STRING]
+	get_status ( a_mailbox_name: STRING; status_data: LIST[STRING] ): HASH_TABLE[INTEGER, STRING]
 			-- Return the status of the mailbox `a_mailbox_name' for status data in list `status_data'
 		require
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
 			status_data_not_empty: status_data /= Void and then not status_data.is_empty
 		local
 			args:LINKED_LIST[STRING]
-			arg: STRING
 			tag: STRING
 			response: IL_SERVER_RESPONSE
 			parser: IL_PARSER
 		do
 			create args.make
 			args.extend (a_mailbox_name)
-			arg := "("
-			across
-				status_data as data
-			loop
-				arg := arg + data.item + " "
-			end
-			arg := arg + ")"
-			args.extend (arg)
+			args.extend (string_from_list (status_data))
 
 			tag := get_tag
 			network.send_command (tag, get_command (Status_action), args)
@@ -407,15 +399,8 @@ feature -- Authenticated commands
 		do
 			create args.make
 			args.extend (a_mailbox_name)
-			create flags_string.make_empty
-			across
-				flags as flag
-			loop
-				flags_string.append (flag.item + " ")
-			end
+			flags_string := string_from_list (flags)
 			if not flags_string.is_empty then
-				flags_string.remove_tail (1)
-				flags_string := "(" + flags_string + ")"
 				args.extend (flags_string)
 			end
 
@@ -442,7 +427,7 @@ feature -- Selected commands
 			args: LINKED_LIST[STRING]
 		do
 			create args.make
-			network.send_command (get_tag, get_command (Check_action), args)
+			send_command (get_command (Check_action), args)
 		end
 
 
@@ -452,7 +437,7 @@ feature -- Selected commands
 			args: LINKED_LIST[STRING]
 		do
 			create args.make
-			network.send_command (get_tag, get_command (Close_action), args)
+			send_command (get_command (Close_action), args)
 			network.update_imap_state(response_mgr.read_response (current_tag), {IL_NETWORK_STATE}.authenticated_state)
 		end
 
@@ -462,7 +447,7 @@ feature -- Selected commands
 			args: LINKED_LIST[STRING]
 		do
 			create args.make
-			network.send_command (get_tag, get_command (Expunge_action), args)
+			send_command (get_command (Expunge_action), args)
 		end
 
 	get_expunge: LINKED_LIST[INTEGER]
@@ -486,7 +471,7 @@ feature -- Selected commands
 			end
 		end
 
-	search (charset: STRING; criterias: LINKED_LIST[STRING]): LINKED_LIST[INTEGER]
+	search (charset: STRING; criterias: LIST[STRING]): LINKED_LIST[INTEGER]
 			-- Return a list of message that match the criterias `criterias'
 		require
 			criterias_not_void: criterias /= Void
@@ -519,24 +504,14 @@ feature -- Selected commands
 
 		end
 
-	fetch ( a_sequence_set: IL_SEQUENCE_SET; data_items: LINKED_LIST[STRING] ): HASH_TABLE[IL_FETCH, NATURAL]
+	fetch ( a_sequence_set: IL_SEQUENCE_SET; data_items: LIST[STRING] ): HASH_TABLE[IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set `a_sequence_set' for data items `data_items'
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_not_empty: data_items /= Void and then not data_items.is_empty
-		local
-			data: STRING
 		do
-			data := "("
-			across
-				data_items as item
-			loop
-				data := data + item.item + " "
-			end
-			data := data + ")"
-
-			Result := fetch_string(a_sequence_set, data)
+			Result := fetch_string(a_sequence_set, string_from_list (data_items))
 
 		end
 
@@ -577,24 +552,14 @@ feature -- Selected commands
 			Result := send_fetch (a_sequence_set, data_items, false)
 		end
 
-	fetch_uid ( a_sequence_set: IL_SEQUENCE_SET; data_items: LINKED_LIST[STRING] ): HASH_TABLE[IL_FETCH, NATURAL]
+	fetch_uid ( a_sequence_set: IL_SEQUENCE_SET; data_items: LIST[STRING] ): HASH_TABLE[IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set of uids `a_sequence_set' for data items `data_items'
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_not_empty: data_items /= Void and then not data_items.is_empty
-		local
-			data: STRING
 		do
-			data := "("
-			across
-				data_items as item
-			loop
-				data := data + item.item + " "
-			end
-			data := data + ")"
-
-			Result := fetch_string_uid(a_sequence_set, data)
+			Result := fetch_string_uid(a_sequence_set, string_from_list (data_items))
 
 		end
 
@@ -646,7 +611,7 @@ feature -- Selected commands
 			create args.make
 			args.extend (a_sequence_set.string)
 			args.extend (a_mailbox_name)
-			network.send_command (get_tag, get_command (Copy_action), args)
+			send_command (get_command (Copy_action), args)
 		end
 
 	copy_messages_uid ( a_sequence_set: IL_SEQUENCE_SET; a_mailbox_name: STRING)
@@ -660,7 +625,7 @@ feature -- Selected commands
 			create args.make
 			args.extend (a_sequence_set.string)
 			args.extend (a_mailbox_name)
-			network.send_command (get_tag, get_command (Uid_copy_action), args)
+			send_command (get_command (Uid_copy_action), args)
 		end
 
 	store (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST[STRING])
@@ -671,26 +636,14 @@ feature -- Selected commands
 			data_item_value_not_void: data_item_values /= Void
 		local
 			args: LINKED_LIST[STRING]
-			value_list: STRING
 		do
 			create args.make
 			args.extend (a_sequence_set.string)
 			args.extend (data_item_name)
 
-			create value_list.make_empty
-			across
-				data_item_values as value
-			loop
-				value_list.append (value.item + " ")
-			end
-			if not value_list.is_empty then
-				value_list.remove_tail (1)
-			end
-			value_list.prepend ("(")
-			value_list.append (")")
-			args.extend (value_list)
+			args.extend (string_from_list (data_item_values))
 
-			network.send_command (get_tag, get_command (Store_action), args)
+			send_command (get_command (Store_action), args)
 		end
 
 	get_store (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST[STRING]): HASH_TABLE[IL_FETCH, NATURAL]
@@ -702,7 +655,6 @@ feature -- Selected commands
 			data_item_value_not_void: data_item_values /= Void
 		local
 			args: LINKED_LIST[STRING]
-			value_list: STRING
 			tag: STRING
 			response: IL_SERVER_RESPONSE
 			parser: IL_FETCH_PARSER
@@ -712,18 +664,7 @@ feature -- Selected commands
 			args.extend (a_sequence_set.string)
 			args.extend (data_item_name)
 
-			create value_list.make_empty
-			across
-				data_item_values as value
-			loop
-				value_list.append (value.item + " ")
-			end
-			if not value_list.is_empty then
-				value_list.remove_tail (1)
-			end
-			value_list.prepend ("(")
-			value_list.append (")")
-			args.extend (value_list)
+			args.extend (string_from_list (data_item_values))
 
 			network.send_command (tag, get_command (Store_action), args)
 			response := get_response (tag)
@@ -744,26 +685,14 @@ feature -- Selected commands
 			data_item_value_not_void: data_item_values /= Void
 		local
 			args: LINKED_LIST[STRING]
-			value_list: STRING
 		do
 			create args.make
 			args.extend (a_sequence_set.string)
 			args.extend (data_item_name)
 
-			create value_list.make_empty
-			across
-				data_item_values as value
-			loop
-				value_list.append (value.item + " ")
-			end
-			if not value_list.is_empty then
-				value_list.remove_tail (1)
-			end
-			value_list.prepend ("(")
-			value_list.append (")")
-			args.extend (value_list)
+			args.extend (string_from_list (data_item_values))
 
-			network.send_command (get_tag, get_command (Uid_store_action), args)
+			send_command (get_command (Uid_store_action), args)
 		end
 
 	get_store_uid (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST[STRING]): HASH_TABLE[IL_FETCH, NATURAL]
@@ -775,7 +704,6 @@ feature -- Selected commands
 			data_item_value_not_void: data_item_values /= Void
 		local
 			args: LINKED_LIST[STRING]
-			value_list: STRING
 			tag: STRING
 			response: IL_SERVER_RESPONSE
 			parser: IL_FETCH_PARSER
@@ -785,18 +713,7 @@ feature -- Selected commands
 			args.extend (a_sequence_set.string)
 			args.extend (data_item_name)
 
-			create value_list.make_empty
-			across
-				data_item_values as value
-			loop
-				value_list.append (value.item + " ")
-			end
-			if not value_list.is_empty then
-				value_list.remove_tail (1)
-			end
-			value_list.prepend ("(")
-			value_list.append (")")
-			args.extend (value_list)
+			args.extend (string_from_list (data_item_values))
 
 			network.send_command (tag, get_command (Uid_store_action), args)
 			response := get_response (tag)
@@ -960,6 +877,27 @@ feature {NONE} -- Implementation
 		end
 
  	response_mgr: IL_RESPONSE_MANAGER
+
+ 	string_from_list (a_list: LIST[STRING]): STRING
+ 			-- Returns a string begining with "(" and ending with ")" and containing all the elements of `a_list' separated by " "
+ 			-- Returns an empty string iff a_list is empty
+ 		require
+ 			a_list_not_void: a_list /= Void
+ 		do
+ 			create Result.make_empty
+
+ 			across
+				a_list as elem
+			loop
+				Result.append (elem.item + " ")
+			end
+			if not Result.is_empty then
+				Result.remove_tail (1)
+				Result := "(" + Result + ")"
+			end
+		ensure
+			empty_list_iff_empty_result: a_list.is_empty = Result.is_empty
+ 		end
 
 
 end
