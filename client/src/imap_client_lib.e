@@ -393,6 +393,46 @@ feature -- Authenticated commands
 
 		end
 
+	append ( a_mailbox_name: STRING; flags: LIST[STRING]; date_time: STRING; message_literal: STRING )
+			-- Append `message_literal' as a new message to the end of the mailbox `a_mailbox_name'
+			-- The flags in the list `flags' are set to the resulting message and if `data_time' is not empty, it is set as internal date to the message.
+		require
+			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
+			flags_not_void: flags /= Void
+			date_time_not_void: date_time /= Void
+			message_literal_not_empty: message_literal /= Void and then not message_literal.is_empty
+		local
+			args:LINKED_LIST[STRING]
+			flags_string: STRING
+		do
+			create args.make
+			args.extend (a_mailbox_name)
+			create flags_string.make_empty
+			across
+				flags as flag
+			loop
+				flags_string.append (flag.item + " ")
+			end
+			if not flags_string.is_empty then
+				flags_string.remove_tail (1)
+				flags_string := "(" + flags_string + ")"
+				args.extend (flags_string)
+			end
+
+
+			if not date_time.is_empty then
+				args.extend (date_time)
+			end
+
+			args.extend ("{" + message_literal.count.out + "}")
+
+			send_command (get_command (Append_action), args)
+			if needs_continuation then
+				send_command_continuation (message_literal)
+			end
+
+		end
+
 
 feature -- Selected commands
 

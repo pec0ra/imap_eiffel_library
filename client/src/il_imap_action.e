@@ -22,23 +22,24 @@ feature -- Access
 	List_action: NATURAL = 11
 	Lsub_action: NATURAL = 12
 	Status_action: NATURAL = 13
-	Check_action: NATURAL = 14
-	Close_action: NATURAL = 15
-	Expunge_action: NATURAL = 16
-	Search_action: NATURAL = 17
-	Fetch_action: NATURAL = 18
-	Store_action: NATURAL = 19
-	Copy_action: NATURAL = 20
-	Uid_copy_action: NATURAL = 21
-	Uid_fetch_action: NATURAL = 22
-	Uid_store_action: NATURAL = 23
-	Noop_action: NATURAL = 24
-	Logout_action: NATURAL = 25
+	Append_action: NATURAL = 14
+	Check_action: NATURAL = 15
+	Close_action: NATURAL = 16
+	Expunge_action: NATURAL = 17
+	Search_action: NATURAL = 18
+	Fetch_action: NATURAL = 19
+	Store_action: NATURAL = 20
+	Copy_action: NATURAL = 21
+	Uid_copy_action: NATURAL = 22
+	Uid_fetch_action: NATURAL = 23
+	Uid_store_action: NATURAL = 24
+	Noop_action: NATURAL = 25
+	Logout_action: NATURAL = 26
 
 
 
 	min_action: NATURAL = 1
-	max_action: NATURAL = 25
+	max_action: NATURAL = 26
 
 feature -- Basic Operations
 
@@ -78,6 +79,8 @@ feature -- Basic Operations
 				Result := "LSUB"
 			when Status_action then
 				Result := "STATUS"
+			when Append_action then
+				Result := "APPEND"
 			when Check_action then
 				Result := "CHECK"
 			when Close_action then
