@@ -9,32 +9,41 @@ class
 
 feature -- Access
 
-	Login_action: NATURAL = 1
-	Starttls_action: NATURAL = 2
-	Capability_action: NATURAL = 3
-	Select_action: NATURAL = 4
-	Examine_action: NATURAL = 5
-	Create_action: NATURAL = 6
-	Delete_action: NATURAL = 7
-	Rename_action: NATURAL = 8
-	Subscribe_action: NATURAL = 9
-	Unsubscribe_action: NATURAL = 10
-	List_action: NATURAL = 11
-	Lsub_action: NATURAL = 12
-	Status_action: NATURAL = 13
-	Append_action: NATURAL = 14
-	Check_action: NATURAL = 15
-	Close_action: NATURAL = 16
-	Expunge_action: NATURAL = 17
-	Search_action: NATURAL = 18
-	Fetch_action: NATURAL = 19
-	Store_action: NATURAL = 20
-	Copy_action: NATURAL = 21
-	Uid_copy_action: NATURAL = 22
-	Uid_fetch_action: NATURAL = 23
-	Uid_store_action: NATURAL = 24
-	Noop_action: NATURAL = 25
-	Logout_action: NATURAL = 26
+	-- Any state actions
+	Capability_action: NATURAL = 1
+	Noop_action: NATURAL = 2
+	Logout_action: NATURAL = 3
+
+	-- Not authenticated state actions
+	Login_action: NATURAL = 4
+	Starttls_action: NATURAL = 5
+
+	-- Authenticated state actions
+	Select_action: NATURAL = 6
+	Examine_action: NATURAL = 7
+	Create_action: NATURAL = 8
+	Delete_action: NATURAL = 9
+	Rename_action: NATURAL = 10
+	Subscribe_action: NATURAL = 11
+	Unsubscribe_action: NATURAL = 12
+	List_action: NATURAL = 13
+	Lsub_action: NATURAL = 14
+	Status_action: NATURAL = 15
+	Append_action: NATURAL = 16
+
+	-- Selected state actions
+	Check_action: NATURAL = 17
+	Close_action: NATURAL = 18
+	Expunge_action: NATURAL = 19
+	Search_action: NATURAL = 20
+	Fetch_action: NATURAL = 21
+	Store_action: NATURAL = 22
+	Copy_action: NATURAL = 23
+	Uid_copy_action: NATURAL = 24
+	Uid_fetch_action: NATURAL = 25
+	Uid_store_action: NATURAL = 26
+
+
 
 
 

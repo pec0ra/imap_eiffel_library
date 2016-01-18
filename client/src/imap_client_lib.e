@@ -57,7 +57,6 @@ feature {NONE} -- Initialization
 			create network.make_with_address_and_port (a_address, a_port)
 			current_tag_number := 0
 			current_tag := Tag_prefix + "0"
-			last_response_received := -1
 			create response_mgr.make_with_network (network)
 		ensure
 			network /= Void
@@ -84,7 +83,6 @@ feature {NONE} -- Initialization
 			network := create {IL_SSL_NETWORK}.make_with_address_and_port (a_address, a_port)
 			current_tag_number := 0
 			current_tag := Tag_prefix + "0"
-			last_response_received := -1
 			create response_mgr.make_with_network (network)
 		ensure
 			network /= Void
@@ -119,6 +117,12 @@ feature -- Basic Commands
 			else
 				create Result.make
 			end
+		end
+
+	noop
+			-- Send a Noop command
+		do
+			send_command (get_command (Noop_action), create {LINKED_LIST [STRING]}.make)
 		end
 
 feature -- Not connected commands
@@ -303,8 +307,8 @@ feature -- Authenticated commands
 			tag := get_tag
 			network.send_command (tag, get_command (List_action), args)
 			response := get_response (tag)
-			create parser.make_from_response (response, false)
-			if parser.get_status ~ Command_ok_label then
+			if not response.is_error and then response.status ~ Command_ok_label then
+				create parser.make_from_response (response, false)
 				Result := parser.get_list
 			else
 				create Result.make
@@ -342,8 +346,8 @@ feature -- Authenticated commands
 			tag := get_tag
 			network.send_command (tag, get_command (Lsub_action), args)
 			response := get_response (tag)
-			create parser.make_from_response (response, true)
-			if parser.get_status ~ Command_ok_label then
+			if not response.is_error and then response.status ~ Command_ok_label then
+				create parser.make_from_response (response, true)
 				Result := parser.get_list
 			else
 				create Result.make
@@ -367,8 +371,12 @@ feature -- Authenticated commands
 			tag := get_tag
 			network.send_command (tag, get_command (Status_action), args)
 			response := get_response (tag)
-			create parser.make_from_text (response.untagged_responses.at (0))
-			Result := parser.get_status_data
+			if not response.is_error and then response.status ~ Command_ok_label then
+				create parser.make_from_text (response.untagged_responses.at (0))
+				Result := parser.get_status_data
+			else
+				create Result.make (0)
+			end
 		end
 
 	append (a_mailbox_name: STRING; flags: LIST [STRING]; date_time: STRING; message_literal: STRING)
@@ -441,8 +449,8 @@ feature -- Selected commands
 			tag := get_tag
 			network.send_command (tag, get_command (Expunge_action), args)
 			response := get_response (tag)
-			create parser.make_from_response (response)
-			if parser.get_status ~ Command_ok_label then
+			if not response.is_error and then response.status ~ Command_ok_label then
+				create parser.make_from_response (response)
 				Result := parser.parse_expunged
 			else
 				create Result.make
@@ -471,7 +479,7 @@ feature -- Selected commands
 			end
 			network.send_command (tag, get_command (Search_action), args)
 			response := get_response (tag)
-			if response.status ~ Command_ok_label and then response.untagged_response_count = 1 then
+			if not response.is_error and then response.status ~ Command_ok_label and then response.untagged_response_count = 1 then
 				create parser.make_from_text (response.untagged_responses.at (0))
 				Result := parser.get_search_results
 			else
@@ -607,14 +615,8 @@ feature -- Selected commands
 			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_name_not_empty: data_item_name /= Void and then not data_item_name.is_empty
 			data_item_value_not_void: data_item_values /= Void
-		local
-			args: LINKED_LIST [STRING]
 		do
-			create args.make
-			args.extend (a_sequence_set.string)
-			args.extend (data_item_name)
-			args.extend (string_from_list (data_item_values))
-			send_command (get_command (Store_action), args)
+			send_store (get_tag, a_sequence_set, data_item_name, data_item_values, false)
 		end
 
 	get_store (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST [STRING]): HASH_TABLE [IL_FETCH, NATURAL]
@@ -625,19 +627,14 @@ feature -- Selected commands
 			data_item_name_not_empty: data_item_name /= Void and then not data_item_name.is_empty
 			data_item_value_not_void: data_item_values /= Void
 		local
-			args: LINKED_LIST [STRING]
 			tag: STRING
 			response: IL_SERVER_RESPONSE
 			parser: IL_FETCH_PARSER
 		do
 			tag := get_tag
-			create args.make
-			args.extend (a_sequence_set.string)
-			args.extend (data_item_name)
-			args.extend (string_from_list (data_item_values))
-			network.send_command (tag, get_command (Store_action), args)
+			send_store (tag, a_sequence_set, data_item_name, data_item_values, false)
 			response := get_response (tag)
-			if response.status ~ Command_ok_label and then response.untagged_response_count >= 1 then
+			if not response.is_error and then response.status ~ Command_ok_label and then response.untagged_response_count >= 1 then
 				create parser.make_from_response (response)
 				Result := parser.get_data
 			else
@@ -651,14 +648,8 @@ feature -- Selected commands
 			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_name_not_empty: data_item_name /= Void and then not data_item_name.is_empty
 			data_item_value_not_void: data_item_values /= Void
-		local
-			args: LINKED_LIST [STRING]
 		do
-			create args.make
-			args.extend (a_sequence_set.string)
-			args.extend (data_item_name)
-			args.extend (string_from_list (data_item_values))
-			send_command (get_command (Uid_store_action), args)
+			send_store (get_tag, a_sequence_set, data_item_name, data_item_values, true)
 		end
 
 	get_store_uid (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST [STRING]): HASH_TABLE [IL_FETCH, NATURAL]
@@ -669,19 +660,14 @@ feature -- Selected commands
 			data_item_name_not_empty: data_item_name /= Void and then not data_item_name.is_empty
 			data_item_value_not_void: data_item_values /= Void
 		local
-			args: LINKED_LIST [STRING]
 			tag: STRING
 			response: IL_SERVER_RESPONSE
 			parser: IL_FETCH_PARSER
 		do
 			tag := get_tag
-			create args.make
-			args.extend (a_sequence_set.string)
-			args.extend (data_item_name)
-			args.extend (string_from_list (data_item_values))
-			network.send_command (tag, get_command (Uid_store_action), args)
+			send_store (tag, a_sequence_set, data_item_name, data_item_values, true)
 			response := get_response (tag)
-			if response.status ~ Command_ok_label and then response.untagged_response_count >= 1 then
+			if not response.is_error and then response.status ~ Command_ok_label and then response.untagged_response_count >= 1 then
 				create parser.make_from_response (response)
 				Result := parser.get_data
 			else
@@ -709,6 +695,44 @@ feature -- Basic Operations
 			network.send_command_continuation (a_continuation)
 		end
 
+	get_last_response: IL_SERVER_RESPONSE
+			-- Returns the response for the last command sent
+		do
+			Result := get_response (current_tag)
+		ensure
+			Result /= Void
+		end
+
+	get_response (tag: STRING): IL_SERVER_RESPONSE
+			-- Returns the server response that the server gave for command with tag `tag'
+		require
+			tag_not_empty: tag /= Void and then not tag.is_empty
+		local
+			parser: IL_PARSER
+			tag_number: INTEGER
+		do
+			create parser.make_from_text (tag)
+			tag_number := parser.get_number
+			check
+				correct_tag: tag_number > 0 and tag_number <= current_tag_number
+			end
+			Result := response_mgr.get_response (tag)
+		ensure
+			Result /= Void
+		end
+
+	receive
+			-- Read socket for responses
+		do
+			response_mgr.update_responses (current_tag)
+		end
+
+	get_last_tag: STRING
+			-- Returns the tag of the last command sent
+		do
+			Result := current_tag
+		end
+
 	is_connected: BOOLEAN
 			-- Returns true iff the network is connected to the socket
 		do
@@ -718,37 +742,18 @@ feature -- Basic Operations
 			Result := network.is_connected
 		end
 
+	get_current_state: NATURAL
+			-- Returns the current IMAP state
+		do
+			Result := network.state
+		end
+
 		-- TODO: See if this is really needed
 
 	supports_action (action: NATURAL): BOOLEAN
 			-- Returns true if the command `action' is supported in current context
-		local
-			capability_list: LINKED_LIST [STRING]
 		do
-				--capability_list := get_capability
-
-				--Result := false
-				--across
-				--	capability_list as cap
-				--loop
-				--	if cap.item ~ get_command(action) then
-			Result := true
-				--	end
-				--end
-		end
-
-	get_last_response: IL_SERVER_RESPONSE
-			-- Returns the response for the last command sent
-		do
-			Result := get_response (current_tag)
-		ensure
-			Result /= Void
-		end
-
-	receive
-			-- Read socket for responses
-		do
-			response_mgr.update_responses (current_tag)
+			Result := network.check_action (network.state, action)
 		end
 
 	needs_continuation: BOOLEAN
@@ -768,8 +773,6 @@ feature {NONE} -- Implementation
 
 	current_tag: STRING
 
-	last_response_received: INTEGER
-
 	get_tag: STRING
 			-- increments the `current_tag_number' and returns a new tag, greater tha the last one
 		do
@@ -780,25 +783,6 @@ feature {NONE} -- Implementation
 			current_tag := Result
 		ensure
 			current_tag_number_increased: current_tag_number > old current_tag_number
-		end
-
-	get_response (tag: STRING): IL_SERVER_RESPONSE
-			-- Returns the server response that the server gave for command with tag `tag'
-		require
-			tag_not_empty: tag /= Void and then not tag.is_empty
-		local
-			parser: IL_PARSER
-			tag_number: INTEGER
-		do
-			create parser.make_from_text (tag)
-			tag_number := parser.get_number
-			check
-				correct_tag: tag_number > last_response_received and tag_number <= current_tag_number
-			end
-			Result := response_mgr.get_response (tag)
-			last_response_received := tag_number
-		ensure
-			Result /= Void
 		end
 
 	send_fetch (a_sequence_set: IL_SEQUENCE_SET; data_items: STRING; is_uid: BOOLEAN): HASH_TABLE [IL_FETCH, NATURAL]
@@ -831,6 +815,28 @@ feature {NONE} -- Implementation
 				Result := parser.get_data
 			else
 				create Result.make (0)
+			end
+		end
+
+	send_store (a_tag: STRING; a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST [STRING]; is_uid: BOOLEAN)
+			-- send STORE command for arguments `a_sequence_set'. Change the messages according to `data_item_name' with arguments `data_item_values'
+			-- `a_sequence_set' represents uid iff `is_uid' is set to true
+		require
+			a_tag_not_empty: a_tag /= Void and then not a_tag.is_empty
+			a_sequence_set_not_void: a_sequence_set /= Void
+			data_item_name_not_empty: data_item_name /= Void and then not data_item_name.is_empty
+			data_item_value_not_void: data_item_values /= Void
+		local
+			args: LINKED_LIST [STRING]
+		do
+			create args.make
+			args.extend (a_sequence_set.string)
+			args.extend (data_item_name)
+			args.extend (string_from_list (data_item_values))
+			if is_uid then
+				network.send_command (a_tag, get_command (Uid_store_action), args)
+			else
+				network.send_command (a_tag, get_command (Store_action), args)
 			end
 		end
 
