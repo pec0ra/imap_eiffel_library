@@ -94,7 +94,8 @@ feature -- Basic Commands
 	logout
 			-- Attempt to logout
 		do
-			send_command (get_command (Logout_action), create {ARRAYED_LIST [STRING]}.make (0))
+			send_action (Logout_action, create {ARRAYED_LIST [STRING]}.make (0))
+			network.set_state ({IL_NETWORK_STATE}.not_connected_state)
 		end
 
 	get_capability: LINKED_LIST [STRING]
@@ -106,7 +107,7 @@ feature -- Basic Commands
 			tag: STRING
 		do
 			tag := get_tag
-			network.send_command (tag, get_command (Capability_action), create {ARRAYED_LIST [STRING]}.make (0))
+			send_action_with_tag (tag, Capability_action, create {ARRAYED_LIST [STRING]}.make (0))
 			response := get_response (tag)
 			check
 				correct_response_received: response.untagged_response_count = 1 or response.is_error
@@ -122,7 +123,7 @@ feature -- Basic Commands
 	noop
 			-- Send a Noop command
 		do
-			send_command (get_command (Noop_action), create {LINKED_LIST [STRING]}.make)
+			send_action (Noop_action, create {LINKED_LIST [STRING]}.make)
 		end
 
 feature -- Not connected commands
@@ -147,27 +148,28 @@ feature -- Not authenticated commands
 			args: LINKED_LIST [STRING]
 		do
 			create args.make
-			send_command (get_command (Starttls_action), args)
+			send_action (Starttls_action, args)
 		end
 
 	login (a_user_name: STRING; a_password: STRING)
 			-- Attempt to login
 		require
-			supports_action: supports_action (Login_action)
+			a_user_name_not_empty: a_user_name /= Void and then not a_user_name.is_empty
+			a_password_not_empty: a_password /= Void and then not a_password.is_empty
 		local
 			args: LINKED_LIST [STRING]
 		do
 			create args.make
 			args.extend (a_user_name)
 			args.extend (a_password)
-			send_command (get_command (Login_action), args)
-			network.update_imap_state (response_mgr.read_response (current_tag), {IL_NETWORK_STATE}.authenticated_state)
+			send_action (Login_action, args)
+			network.update_imap_state (response_mgr.get_response (current_tag), {IL_NETWORK_STATE}.authenticated_state)
 		end
 
 feature -- Authenticated commands
 
-	select_mailbox (a_mailbox_name: STRING): IL_MAILBOX
-			-- Select the mailbox `a_mailbox_name'
+	select_mailbox (a_mailbox_name: STRING)
+			-- Select the mailbox `a_mailbox_name' and save it into `Current.current_mailbox'
 		require
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
 		local
@@ -176,22 +178,21 @@ feature -- Authenticated commands
 			tag: STRING
 			parser: IL_MAILBOX_PARSER
 		do
+			current_mailbox.unselect
 			tag := get_tag
 			create args.make
 			args.extend (a_mailbox_name)
-			network.send_command (tag, get_command (Select_action), args)
+			send_action_with_tag (tag, Select_action, args)
 			response := get_response (tag)
 			if not response.is_error and then response.status ~ Command_ok_label then
 				create parser.make_from_response (response, a_mailbox_name)
-				Result := parser.parse_mailbox
+				parser.parse_mailbox
 				network.update_imap_state (response, {IL_NETWORK_STATE}.selected_state)
-			else
-				create Result.make_with_name (a_mailbox_name)
 			end
 		end
 
-	examine_mailbox (a_mailbox_name: STRING): IL_MAILBOX
-			-- Select the mailbox `a_mailbox_name' in read only
+	examine_mailbox (a_mailbox_name: STRING)
+			-- Select the mailbox `a_mailbox_name' in read only and save it into `Current.current_mailbox'
 		require
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
 		local
@@ -200,22 +201,21 @@ feature -- Authenticated commands
 			tag: STRING
 			parser: IL_MAILBOX_PARSER
 		do
+			current_mailbox.unselect
 			tag := get_tag
 			create args.make
 			args.extend (a_mailbox_name)
-			network.send_command (tag, get_command (Examine_action), args)
+			send_action_with_tag (tag, Examine_action, args)
 			response := get_response (tag)
 			if not response.is_error and then response.status ~ Command_ok_label then
 				create parser.make_from_response (response, a_mailbox_name)
-				Result := parser.parse_mailbox
+				parser.parse_mailbox
 				network.update_imap_state (response, {IL_NETWORK_STATE}.selected_state)
-			else
-				create Result.make_with_name (a_mailbox_name)
 			end
 		end
 
 	create_mailbox (a_mailbox_name: STRING)
-			-- Delete the mailbox `a_mailbox_name'
+			-- Create the mailbox `a_mailbox_name'
 		require
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
 		local
@@ -223,7 +223,7 @@ feature -- Authenticated commands
 		do
 			create args.make
 			args.extend (a_mailbox_name)
-			send_command (get_command (Create_action), args)
+			send_action (Create_action, args)
 		end
 
 	delete_mailbox (a_mailbox_name: STRING)
@@ -235,7 +235,7 @@ feature -- Authenticated commands
 		do
 			create args.make
 			args.extend (a_mailbox_name)
-			send_command (get_command (Delete_action), args)
+			send_action (Delete_action, args)
 		end
 
 	rename_mailbox (a_mailbox_name: STRING; a_new_name: STRING)
@@ -249,7 +249,7 @@ feature -- Authenticated commands
 			create args.make
 			args.extend (a_mailbox_name)
 			args.extend (a_new_name)
-			send_command (get_command (Rename_action), args)
+			send_action (Rename_action, args)
 		end
 
 	subscribe (a_mailbox_name: STRING)
@@ -261,7 +261,7 @@ feature -- Authenticated commands
 		do
 			create args.make
 			args.extend (a_mailbox_name)
-			send_command (get_command (Subscribe_action), args)
+			send_action (Subscribe_action, args)
 		end
 
 	unsubscribe (a_mailbox_name: STRING)
@@ -273,7 +273,7 @@ feature -- Authenticated commands
 		do
 			create args.make
 			args.extend (a_mailbox_name)
-			send_command (get_command (Unsubscribe_action), args)
+			send_action (Unsubscribe_action, args)
 		end
 
 	list (a_reference_name: STRING; a_name: STRING)
@@ -287,7 +287,7 @@ feature -- Authenticated commands
 			create args.make
 			args.extend ("%"" + a_reference_name + "%"")
 			args.extend ("%"" + a_name + "%"")
-			send_command (get_command (List_action), args)
+			send_action (List_action, args)
 		end
 
 	get_list (a_reference_name: STRING; a_name: STRING): LINKED_LIST [IL_NAME]
@@ -305,7 +305,7 @@ feature -- Authenticated commands
 			args.extend ("%"" + a_reference_name + "%"")
 			args.extend ("%"" + a_name + "%"")
 			tag := get_tag
-			network.send_command (tag, get_command (List_action), args)
+			send_action_with_tag (tag, List_action, args)
 			response := get_response (tag)
 			if not response.is_error and then response.status ~ Command_ok_label then
 				create parser.make_from_response (response, false)
@@ -326,7 +326,7 @@ feature -- Authenticated commands
 			create args.make
 			args.extend ("%"" + a_reference_name + "%"")
 			args.extend ("%"" + a_name + "%"")
-			send_command (get_command (Lsub_action), args)
+			send_action (Lsub_action, args)
 		end
 
 	get_lsub (a_reference_name: STRING; a_name: STRING): LINKED_LIST [IL_NAME]
@@ -344,7 +344,7 @@ feature -- Authenticated commands
 			args.extend ("%"" + a_reference_name + "%"")
 			args.extend ("%"" + a_name + "%"")
 			tag := get_tag
-			network.send_command (tag, get_command (Lsub_action), args)
+			send_action_with_tag (tag, Lsub_action, args)
 			response := get_response (tag)
 			if not response.is_error and then response.status ~ Command_ok_label then
 				create parser.make_from_response (response, true)
@@ -369,7 +369,7 @@ feature -- Authenticated commands
 			args.extend (a_mailbox_name)
 			args.extend (string_from_list (status_data))
 			tag := get_tag
-			network.send_command (tag, get_command (Status_action), args)
+			send_action_with_tag (tag, Status_action, args)
 			response := get_response (tag)
 			if not response.is_error and then response.status ~ Command_ok_label then
 				create parser.make_from_text (response.untagged_responses.at (0))
@@ -401,7 +401,7 @@ feature -- Authenticated commands
 				args.extend (date_time)
 			end
 			args.extend ("{" + message_literal.count.out + "}")
-			send_command (get_command (Append_action), args)
+			send_action (Append_action, args)
 			if needs_continuation then
 				send_command_continuation (message_literal)
 			end
@@ -415,7 +415,7 @@ feature -- Selected commands
 			args: LINKED_LIST [STRING]
 		do
 			create args.make
-			send_command (get_command (Check_action), args)
+			send_action (Check_action, args)
 		end
 
 	close
@@ -424,8 +424,8 @@ feature -- Selected commands
 			args: LINKED_LIST [STRING]
 		do
 			create args.make
-			send_command (get_command (Close_action), args)
-			network.update_imap_state (response_mgr.read_response (current_tag), {IL_NETWORK_STATE}.authenticated_state)
+			send_action (Close_action, args)
+			network.update_imap_state (response_mgr.get_response (current_tag), {IL_NETWORK_STATE}.authenticated_state)
 		end
 
 	expunge
@@ -434,7 +434,7 @@ feature -- Selected commands
 			args: LINKED_LIST [STRING]
 		do
 			create args.make
-			send_command (get_command (Expunge_action), args)
+			send_action (Expunge_action, args)
 		end
 
 	get_expunge: LINKED_LIST [INTEGER]
@@ -447,7 +447,7 @@ feature -- Selected commands
 		do
 			create args.make
 			tag := get_tag
-			network.send_command (tag, get_command (Expunge_action), args)
+			send_action_with_tag (tag, Expunge_action, args)
 			response := get_response (tag)
 			if not response.is_error and then response.status ~ Command_ok_label then
 				create parser.make_from_response (response)
@@ -477,7 +477,7 @@ feature -- Selected commands
 			loop
 				args.extend (criteria.item)
 			end
-			network.send_command (tag, get_command (Search_action), args)
+			send_action_with_tag (tag, Search_action, args)
 			response := get_response (tag)
 			if not response.is_error and then response.status ~ Command_ok_label and then response.untagged_response_count = 1 then
 				create parser.make_from_text (response.untagged_responses.at (0))
@@ -592,7 +592,7 @@ feature -- Selected commands
 			create args.make
 			args.extend (a_sequence_set.string)
 			args.extend (a_mailbox_name)
-			send_command (get_command (Copy_action), args)
+			send_action (Copy_action, args)
 		end
 
 	copy_messages_uid (a_sequence_set: IL_SEQUENCE_SET; a_mailbox_name: STRING)
@@ -606,7 +606,7 @@ feature -- Selected commands
 			create args.make
 			args.extend (a_sequence_set.string)
 			args.extend (a_mailbox_name)
-			send_command (get_command (Uid_copy_action), args)
+			send_action (Uid_copy_action, args)
 		end
 
 	store (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST [STRING])
@@ -675,13 +675,43 @@ feature -- Selected commands
 			end
 		end
 
+	check_for_changes: BOOLEAN
+			-- Sends a noop command and returns true iff the server sends back any change to the current mailbox
+		do
+			noop
+			receive
+			Result := current_mailbox.was_updated
+		end
+
 feature -- Basic Operations
+
+	send_action (a_action: NATURAL; arguments: LIST [STRING])
+			-- Send the command for `a_action' with argument list `arguments'
+		require
+			action_supported: supports_action (a_action)
+			arguments_not_void: arguments /= Void
+			network.is_connected
+		do
+			send_command (get_command (a_action), arguments)
+		end
+
+	send_action_with_tag (a_tag: STRING; a_action: NATURAL; arguments: LIST [STRING])
+			-- Send the command for `a_action' with argument list `arguments' and with tag `a_tag'
+		require
+			tag_not_empty: a_tag /= Void and then not a_tag.is_empty
+			action_supported: supports_action (a_action)
+			arguments_not_void: arguments /= Void
+			network.is_connected
+		do
+			network.send_command (a_tag, get_command (a_action), arguments)
+		end
 
 	send_command (a_command: STRING; arguments: LIST [STRING])
 			-- Send the command `a_command' with argument list `arguments'
 		require
 			a_command_not_empty: a_command /= Void and then not a_command.is_empty
 			arguments_not_void: arguments /= Void
+			network.is_connected
 		do
 			network.send_command (get_tag, a_command, arguments)
 		end
@@ -691,6 +721,7 @@ feature -- Basic Operations
 		require
 			a_continuation_not_empty: a_continuation /= Void and then not a_continuation.is_empty
 			needs_continuation: needs_continuation
+			network.is_connected
 		do
 			network.send_command_continuation (a_continuation)
 		end
@@ -724,7 +755,9 @@ feature -- Basic Operations
 	receive
 			-- Read socket for responses
 		do
-			response_mgr.update_responses (current_tag)
+			if current_tag_number > 0 then
+				response_mgr.update_responses (current_tag)
+			end
 		end
 
 	get_last_tag: STRING
@@ -736,9 +769,7 @@ feature -- Basic Operations
 	is_connected: BOOLEAN
 			-- Returns true iff the network is connected to the socket
 		do
-			if current_tag_number > 0 then
-				response_mgr.update_responses (current_tag)
-			end
+			receive
 			Result := network.is_connected
 		end
 
@@ -747,8 +778,6 @@ feature -- Basic Operations
 		do
 			Result := network.state
 		end
-
-		-- TODO: See if this is really needed
 
 	supports_action (action: NATURAL): BOOLEAN
 			-- Returns true if the command `action' is supported in current context
@@ -804,11 +833,11 @@ feature {NONE} -- Implementation
 			args.extend (data_items)
 			tag := get_tag
 			if is_uid then
-				command := get_command (Uid_fetch_action)
+				send_action_with_tag (tag, Uid_fetch_action, args)
 			else
-				command := get_command (Fetch_action)
+				send_action_with_tag (tag, Fetch_action, args)
 			end
-			network.send_command (tag, command, args)
+
 			response := get_response (tag)
 			if response.status ~ Command_ok_label and then response.untagged_response_count >= 1 then
 				create parser.make_from_response (response)
@@ -834,9 +863,9 @@ feature {NONE} -- Implementation
 			args.extend (data_item_name)
 			args.extend (string_from_list (data_item_values))
 			if is_uid then
-				network.send_command (a_tag, get_command (Uid_store_action), args)
+				send_action_with_tag (a_tag, Uid_store_action, args)
 			else
-				network.send_command (a_tag, get_command (Store_action), args)
+				send_action_with_tag (a_tag, Store_action, args)
 			end
 		end
 
@@ -861,5 +890,8 @@ feature {NONE} -- Implementation
 		ensure
 			empty_list_iff_empty_result: a_list.is_empty = Result.is_empty
 		end
+
+invariant
+	mailbox_selected_in_selected_state: (network.state = network.Selected_state) = current_mailbox.is_selected
 
 end

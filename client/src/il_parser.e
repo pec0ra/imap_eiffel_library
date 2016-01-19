@@ -62,9 +62,6 @@ feature -- Basic operations
 					Result.extend (regex.captured_substring (0))
 					regex.next_match
 				end
-				Result.extend (get_command (Noop_action))
-				Result.extend (get_command (Capability_action))
-				Result.extend (get_command (Logout_action))
 			end
 		end
 
@@ -185,6 +182,8 @@ feature {NONE} -- Constants
 	Search_result_pattern: STRING = "^\* SEARCH ([0-9 ]+)$"
 
 	Integer_pattern: STRING = "\d+"
+
+	
 
 feature {NONE} -- Constants
 

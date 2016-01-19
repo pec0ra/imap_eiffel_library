@@ -8,21 +8,24 @@ class
 	IL_MAILBOX
 
 create
-	make_with_name
+	make
 
 feature {NONE} -- Initialization
 
-	make_with_name (a_name: STRING)
-			-- Create the mailbox with name `a_name'
-		require
-			a_name_not_empty: a_name /= Void and then not a_name.is_empty
+	make
+			-- Create the mailbox
 		do
-			name := a_name
+			is_selected := false
+			create name.make_empty
 			create flags.make
 			create permanent_flags.make
+			create recent_expunge.make
+			create recent_flag_fetches.make (0)
 		end
 
 feature -- Access
+
+	is_selected: BOOLEAN
 
 	name: STRING
 
@@ -44,14 +47,62 @@ feature -- Access
 
 feature -- Basic Operations
 
+	unselect
+			-- Reset all the fields of the mailbox
+		do
+			is_selected := false
+			create name.make_empty
+			create flags.make
+			create permanent_flags.make
+			create recent_expunge.make
+			create recent_flag_fetches.make (0)
+			exists := -1
+			recent := -1
+			unseen := -1
+			uid_next := -1
+			uid_validity := -1
+			is_read_only := true
+			is_updated := false
+		ensure
+			not was_updated
+		end
+
+	set_updated
+			-- Set the mailbox as updated
+		do
+			is_updated := true
+		end
+
+	was_updated: BOOLEAN
+			-- Returns true iff there are changes in the mailbox since the last call to this function or access to `recent_flag_fetches' or `recent_expunge'
+		do
+			Result := is_updated or not recent_expunge.is_empty or not recent_flag_fetches.is_empty
+			is_updated := false
+		end
+
+	set_selected (a_name: STRING)
+			-- Set the mailbox as selected and set `name' to `a_name'
+		require
+			a_name_not_empty: a_name /= Void and then not a_name.is_empty
+		do
+			is_selected := true
+			name := a_name
+		end
+
 	set_exists (n: INTEGER)
 		do
 			exists := n
+			set_updated
+		ensure
+			is_updated
 		end
 
 	set_recent (n: INTEGER)
 		do
 			recent := n
+			set_updated
+		ensure
+			is_updated
 		end
 
 	set_unseen (n: INTEGER)
@@ -83,5 +134,55 @@ feature -- Basic Operations
 		do
 			is_read_only := b
 		end
+
+	add_recent_expunge (a_seq_number: INTEGER)
+			-- Add `a_seq_number' to the list `recent_expunge'
+		do
+			recent_expunge.extend (a_seq_number)
+		ensure
+			recent_expunge.has (a_seq_number)
+		end
+
+	get_recent_expunge: LINKED_LIST [INTEGER]
+			-- Return the list `recent_expunge' and clear it
+		do
+			Result := recent_expunge
+			create recent_expunge.make
+		ensure
+			recent_expunge_cleared: recent_expunge.is_empty
+			result_old_recent_expunge: Result = old recent_expunge
+		end
+
+	add_recent_flag_fetch (a_seq_number: INTEGER; a_flag_list: LIST [STRING])
+			-- Add an entry mapping `a_seq_number' to `a_flag_list' into `recent_flag_fetches'
+		require
+			a_flag_list_not_void: a_flag_list /= Void
+		do
+			recent_flag_fetches.put (a_flag_list, a_seq_number)
+		ensure
+			recent_flag_fetches.has (a_seq_number)
+		end
+
+	get_recent_flag_fetches: HASH_TABLE [LIST [STRING], INTEGER]
+			-- Return the list `recent_flag_fetches' and clear it
+		do
+			Result := recent_flag_fetches
+			create recent_flag_fetches.make (0)
+		ensure
+			recent_flag_fetches_cleared: recent_flag_fetches.is_empty
+			result_old_recent_flag_fetches: Result = old recent_flag_fetches
+		end
+
+feature {NONE} -- Implementation
+
+	is_updated: BOOLEAN
+
+	recent_expunge: LINKED_LIST [INTEGER]
+
+	recent_flag_fetches: HASH_TABLE [LIST [STRING], INTEGER]
+			-- matches the message sequence number to a list of flags
+
+invariant
+	unselected_has_empty_name: is_selected = not name.is_empty
 
 end

@@ -28,6 +28,12 @@ feature -- Constants
 			create Result.make
 		end
 
+	current_mailbox: IL_MAILBOX
+			-- The current mailbox
+		once
+			create Result.make
+		end
+
 	Message_status: STRING = "MESSAGES"
 	Recent_status: STRING = "RECENT"
 	Uid_next_status: STRING = "UIDNEXT"
@@ -37,5 +43,7 @@ feature -- Constants
 	All_macro: STRING = "ALL"
 	Fast_macro: STRING = "FAST"
 	Full_macro: STRING = "FULL"
+
+	Max_stored_responses: INTEGER = 100
 
 end

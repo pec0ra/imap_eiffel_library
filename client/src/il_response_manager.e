@@ -23,6 +23,7 @@ feature {NONE} -- Initialization
 		do
 			network := a_network
 			create responses_table.make (0)
+			last_tag_received := Tag_prefix + "0"
 		ensure
 			network_set: network = a_network
 		end
@@ -51,9 +52,10 @@ feature -- Basic operations
 			loop
 				get_next_response
 			end
+			remove_old_responses
 		end
 
-	read_response (tag: STRING): IL_SERVER_RESPONSE
+	get_response (tag: STRING): IL_SERVER_RESPONSE
 			-- Returns the server response that the server gave for command with tag `tag'
 		require
 			tag_not_empty: tag /= Void and then not tag.is_empty
@@ -72,17 +74,7 @@ feature -- Basic operations
 			else
 				create Result.make_error
 			end
-		ensure
-			Result_not_void: Result /= Void
-		end
-
-	get_response (tag: STRING): IL_SERVER_RESPONSE
-			-- Returns the server response that the server gave for command with tag `tag' and deletes it from the list
-		require
-			tag_not_empty: tag /= Void and then not tag.is_empty
-		do
-			Result := read_response (tag)
-			responses_table.remove (tag)
+			remove_old_responses
 		ensure
 			Result_not_void: Result /= Void
 		end
@@ -105,6 +97,7 @@ feature {NONE} -- Implementation
 						bye_action
 					elseif tag ~ "*" then
 						untagged_action (response)
+						check_for_mailbox_update (response)
 					elseif tag ~ "+" then
 							-- When the tag is "+", the server needs the continuation of the request
 						network.set_needs_continuation (true)
@@ -176,9 +169,52 @@ feature {NONE} -- Implementation
 			server_response.set_tagged_text (response)
 			server_response.set_status (parser.get_status)
 			responses_table.put (server_response, tag)
+			last_tag_received := tag
+		end
+
+	check_for_mailbox_update (a_response: STRING)
+			-- Check if the response contains information about the open mailbox and update it if it is the case
+		require
+			a_response_not_empty: a_response /= Void and then not a_response.is_empty
+		local
+			mailbox_parser: IL_MAILBOX_PARSER
+		do
+			if network.state = {IL_NETWORK_STATE}.selected_state then
+				create mailbox_parser.make_from_text (a_response)
+				mailbox_parser.status_update
+			end
+		end
+
+	remove_old_responses
+			-- Removes the responses older than last_response - Max_stored_responses
+		local
+			last_tag_number_received: INTEGER
+			i: INTEGER
+			parser: IL_PARSER
+			key: STRING
+			response: detachable IL_SERVER_RESPONSE
+		do
+			if responses_table.count > Max_stored_responses then
+				create parser.make_from_text (last_tag_received)
+				last_tag_number_received := parser.get_number
+				from
+					i := last_tag_deleted
+				until
+					i > last_tag_number_received - Max_stored_responses
+				loop
+					key := Tag_prefix + i.out
+					responses_table.remove (key)
+					last_tag_deleted := i
+					i := i + 1
+				end
+			end
 		end
 
 	responses_table: HASH_TABLE [IL_SERVER_RESPONSE, STRING]
+
+	last_tag_received: STRING
+
+	last_tag_deleted: INTEGER
 
 	network: IL_NETWORK
 

@@ -48,6 +48,9 @@ feature -- Basic operation
 			correct_state: a_state >= Min_state and a_state <= Max_state
 		do
 			state := a_state
+			if a_state /= Selected_state then
+				current_mailbox.unselect
+			end
 		ensure
 			state = a_state
 		end
@@ -78,7 +81,7 @@ feature -- Access
 
 feature -- Implementation
 
-	any_state_actions: LINKED_LIST[NATURAL]
+	any_state_actions: LINKED_LIST [NATURAL]
 			-- Valid actions in any state
 		once
 			create Result.make
@@ -93,7 +96,6 @@ feature -- Implementation
 			create Result.make
 			Result.extend ({IL_IMAP_ACTION}.Login_action)
 			Result.extend ({IL_IMAP_ACTION}.Starttls_action)
-
 		end
 
 	authenticated_state_actions: LINKED_LIST [NATURAL]
@@ -117,6 +119,8 @@ feature -- Implementation
 			-- Valid actions in selected state
 		once
 			create Result.make
+			Result.extend ({IL_IMAP_ACTION}.Select_action)
+			Result.extend ({IL_IMAP_ACTION}.Examine_action)
 			Result.extend ({IL_IMAP_ACTION}.Check_action)
 			Result.extend ({IL_IMAP_ACTION}.Close_action)
 			Result.extend ({IL_IMAP_ACTION}.Expunge_action)
