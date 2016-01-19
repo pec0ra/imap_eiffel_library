@@ -1,8 +1,7 @@
 note
-	description: "Summary description for {IL_IMAP_ACTION}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "The available actions and their IMAP command"
+	author: "Basile Maret"
+	EIS: "name=Client Commands", "src=https://tools.ietf.org/html/rfc3501#section-6", "protocol=uri"
 
 class
 	IL_IMAP_ACTION

@@ -1,8 +1,6 @@
 note
-	description: "Summary description for {IL_CONSTANTS}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "The constants used in the Eiffel IMAP library"
+	author: "Basile Maret"
 
 deferred class
 	IL_CONSTANTS

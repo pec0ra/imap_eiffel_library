@@ -1,8 +1,7 @@
 note
-	description: "Summary description for {IL_NETWORK_STATE}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "A state"
+	author: "Basile Maret"
+	EIS: "name=States", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-3"
 
 deferred class
 	IL_NETWORK_STATE
@@ -67,7 +66,7 @@ feature -- Basic operation
 		do
 			if a_response.status ~ Command_ok_label then
 				set_state (a_state)
-				debugger.dprint (debugger.Dinfo, "Switched state ")
+				debugger.debug_print (debugger.Debug_info, "Switched state ")
 			end
 		end
 

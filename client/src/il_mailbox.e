@@ -1,8 +1,7 @@
 note
-	description: "Summary description for {IL_MAILBOX}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "A mailbox"
+	author: "Basile Maret"
+	EIS: "name=Mailbox size response", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-7.3"
 
 class
 	IL_MAILBOX
@@ -139,6 +138,7 @@ feature -- Basic Operations
 			-- Add `a_seq_number' to the list `recent_expunge'
 		do
 			recent_expunge.extend (a_seq_number)
+			exists := exists - 1
 		ensure
 			recent_expunge.has (a_seq_number)
 		end

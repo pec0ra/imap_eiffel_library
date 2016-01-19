@@ -1,8 +1,10 @@
 note
-	description: "Summary description for {IL_NAME_LIST_PARSER}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "A parser for list of mailbox names"
+	author: "Basile Maret"
+	EIS: "name=LIST command", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.8"
+	EIS: "name=LIST response", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-7.2.2"
+	EIS: "name=LSUB command", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.9"
+	EIS: "name=LSUB response", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-7.2.3"
 
 class
 	IL_NAME_LIST_PARSER

@@ -1,8 +1,9 @@
 note
-	description: "Summary description for {IL_MAILBOX_PARSER}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "A parser to get a mailbox data from server responses"
+	author: "Basile Maret"
+	EIS: "name=SELECT command", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.1"
+	EIS: "name=EXAMINE command", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.2"
+	EIS: "name=Mailbox size response", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-7.3"
 
 class
 	IL_MAILBOX_PARSER

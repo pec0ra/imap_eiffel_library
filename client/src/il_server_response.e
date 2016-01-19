@@ -1,8 +1,7 @@
 note
-	description: "Summary description for {IL_SERVER_RESPONSE}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "A server response"
+	author: "Basile Maret"
+	EIS: "name=Server responses", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-7"
 
 class
 	IL_SERVER_RESPONSE
@@ -30,6 +29,8 @@ feature {NONE} -- Initialization
 		end
 
 	make_empty
+			-- Create an empty server response
+			-- This is used to add the untagged responses before the tagged response
 		do
 			tagged_text := ""
 			create untagged_responses.make
@@ -38,6 +39,8 @@ feature {NONE} -- Initialization
 		end
 
 	make_error
+			-- Create an error response
+			-- This is used when the message could not be parsed
 		do
 			tagged_text := ""
 			create untagged_responses.make
@@ -48,10 +51,13 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	tagged_text: STRING
+			-- The text of the tagged response closing the response
 
 	status: STRING
+			-- The status of the response
 
 	untagged_responses: LINKED_LIST [STRING]
+			-- A list of the untagged responses before the closing tagged response
 
 	is_error: BOOLEAN
 			-- Set to true if the response could not be received from the server
@@ -82,7 +88,7 @@ feature -- Basic operations
 			Result := untagged_responses.count
 		end
 
-	get_untagged_response (i: INTEGER): STRING
+	untagged_response (i: INTEGER): STRING
 			-- Returns the text of the `i'th untagged response
 		require
 			correct_i: i >= 0 and i < untagged_responses.count

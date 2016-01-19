@@ -1,8 +1,7 @@
 note
-	description: "Summary description for {IL_RESPONSE_MANAGER}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "A manager for the server responses"
+	author: "Basile Maret"
+	EIS: "name=Server responses", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-7"
 
 class
 	IL_RESPONSE_MANAGER
@@ -36,7 +35,7 @@ feature -- Basic operations
 			server_response: STRING
 			parser: IL_PARSER
 		do
-			server_response := network.get_line
+			server_response := network.line
 			create parser.make_from_text (server_response)
 			Result := parser.matches_connection_ok
 		end
@@ -55,7 +54,7 @@ feature -- Basic operations
 			remove_old_responses
 		end
 
-	get_response (tag: STRING): IL_SERVER_RESPONSE
+	response (tag: STRING): IL_SERVER_RESPONSE
 			-- Returns the server response that the server gave for command with tag `tag'
 		require
 			tag_not_empty: tag /= Void and then not tag.is_empty
@@ -82,34 +81,34 @@ feature -- Basic operations
 feature {NONE} -- Implementation
 
 	get_next_response
-			-- gets the next response from the network, parse it and add it to the response array
+			-- Gets the next response from the network, parse it and add it to the response array
 		local
-			response, tag, prev_response: STRING
+			a_response, tag: STRING
 			parser: IL_PARSER
 		do
-			response := network.get_line
-			if not response.is_empty then
-				if response.count > 1 then
-					response.remove_tail (1)
-					create parser.make_from_text (response)
-					tag := parser.get_tag
+			a_response := network.line
+			if not a_response.is_empty then
+				if a_response.count > 1 then
+					a_response.remove_tail (1)
+					create parser.make_from_text (a_response)
+					tag := parser.tag
 					if parser.matches_bye then
 						bye_action
 					elseif tag ~ "*" then
-						untagged_action (response)
-						check_for_mailbox_update (response)
+						untagged_action (a_response)
+						check_for_mailbox_update (a_response)
 					elseif tag ~ "+" then
 							-- When the tag is "+", the server needs the continuation of the request
 						network.set_needs_continuation (true)
 					elseif tag.is_empty then
-						empty_action (response)
+						empty_action (a_response)
 					else
-						tagged_action (response, parser, tag)
+						tagged_action (a_response, parser, tag)
 					end
 				end
 			else
 				network.set_state ({IL_NETWORK_STATE}.Not_connected_state)
-				debugger.dprint (debugger.dwarning, "Empty answer received. We are now disconnected")
+				debugger.debug_print (debugger.debug_warning, "Empty answer received. We are now disconnected")
 			end
 		end
 
@@ -117,10 +116,10 @@ feature {NONE} -- Implementation
 			-- When the response is a bye response, we are in a disconnected state
 		do
 			network.set_state ({IL_NETWORK_STATE}.Not_connected_state)
-			debugger.dprint (debugger.Dwarning, "BYE answer received. We are now disconnected")
+			debugger.debug_print (debugger.Debug_warning, "BYE answer received. We are now disconnected")
 		end
 
-	untagged_action (response: STRING)
+	untagged_action (a_response: STRING)
 			-- When the response is an untagged response
 		local
 			server_response: detachable IL_SERVER_RESPONSE
@@ -135,10 +134,10 @@ feature {NONE} -- Implementation
 				create server_response.make_empty
 				responses_table.put (server_response, Next_response_tag)
 			end
-			server_response.add_untagged_response (response)
+			server_response.add_untagged_response (a_response)
 		end
 
-	empty_action (response: STRING)
+	empty_action (a_response: STRING)
 			-- When the response has an empty tag
 		local
 			server_response: detachable IL_SERVER_RESPONSE
@@ -149,11 +148,11 @@ feature {NONE} -- Implementation
 			end
 			server_response := responses_table.at (Next_response_tag)
 			if server_response /= Void then
-				server_response.untagged_responses.last.append (" " + response)
+				server_response.untagged_responses.last.append (" " + a_response)
 			end
 		end
 
-	tagged_action (response: STRING; parser: IL_PARSER; tag: STRING)
+	tagged_action (a_response: STRING; parser: IL_PARSER; tag: STRING)
 			-- When the response is a tagged response
 		local
 			server_response: detachable IL_SERVER_RESPONSE
@@ -166,8 +165,8 @@ feature {NONE} -- Implementation
 			if server_response = Void then
 				create server_response.make_empty
 			end
-			server_response.set_tagged_text (response)
-			server_response.set_status (parser.get_status)
+			server_response.set_tagged_text (a_response)
+			server_response.set_status (parser.status)
 			responses_table.put (server_response, tag)
 			last_tag_received := tag
 		end
@@ -192,11 +191,10 @@ feature {NONE} -- Implementation
 			i: INTEGER
 			parser: IL_PARSER
 			key: STRING
-			response: detachable IL_SERVER_RESPONSE
 		do
 			if responses_table.count > Max_stored_responses then
 				create parser.make_from_text (last_tag_received)
-				last_tag_number_received := parser.get_number
+				last_tag_number_received := parser.number
 				from
 					i := last_tag_deleted
 				until

@@ -1,8 +1,6 @@
 note
-	description: "Summary description for {IL_SSL_NETWORK}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "A network connection using SSL"
+	author: "Basile Maret"
 
 class
 	IL_SSL_NETWORK

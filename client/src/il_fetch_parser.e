@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {IL_FETCH_PARSER}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "A parser for the FETCH server response"
+	author: "Basile Maret"
+	EIS: "name=FETCH command", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
+	EIS: "name=FETCH response", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-7.4.2"
 
 class
 	IL_FETCH_PARSER

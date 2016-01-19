@@ -1,8 +1,6 @@
 note
-	description: "Summary description for {IL_NETWORK}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "A network connection"
+	author: "Basile Maret"
 
 class
 	IL_NETWORK
@@ -92,7 +90,7 @@ feature -- Basic functions
 		do
 			socket.put_string (command)
 			socket.put_new_line
-			debugger.dprint (debugger.dsending, command)
+			debugger.debug_print (debugger.debug_sending, command)
 		end
 
 feature -- Access
@@ -106,14 +104,14 @@ feature -- Access
 
 feature -- Implementation
 
-	get_line: STRING
+	line: STRING
 			-- Returns the last line sent by the server and waits for it if none has been sent
 		require
 			socket.is_connected
 		do
 			socket.read_line
 			Result := socket.last_string
-			debugger.dprint (debugger.dreceiving, Result)
+			debugger.debug_print (debugger.debug_receiving, Result)
 		end
 
 end

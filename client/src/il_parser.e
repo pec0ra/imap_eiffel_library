@@ -1,8 +1,7 @@
 note
-	description: "Summary description for {IL_PARSER}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "A parser for the server responses"
+	author: "Basile Maret"
+	EIS: "name=Server responses", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-7"
 
 class
 	IL_PARSER
@@ -72,13 +71,7 @@ feature -- Basic operations
 			Result := regex.matches (text)
 		end
 
-	get_text: STRING
-			-- Returns the text
-		do
-			Result := text
-		end
-
-	get_tag: STRING
+	tag: STRING
 			-- Returns the tag from the text
 		do
 			regex.compile (Tag_pattern)
@@ -89,7 +82,7 @@ feature -- Basic operations
 			end
 		end
 
-	get_status: STRING
+	status: STRING
 			-- Returns the status from the text
 		do
 			regex.compile (Status_pattern)
@@ -102,7 +95,7 @@ feature -- Basic operations
 			correct_status: Result.is_equal (Command_ok_label) or Result.is_equal (Command_bad_label) or Result.is_equal (Command_no_label)
 		end
 
-	get_number: INTEGER
+	number: INTEGER
 			-- Returns the integer after "il" in `text'
 		do
 			regex.compile (Integer_from_tag_pattern)
@@ -113,7 +106,7 @@ feature -- Basic operations
 			end
 		end
 
-	get_status_data: HASH_TABLE [INTEGER, STRING]
+	status_data: STRING_TABLE [INTEGER]
 			-- Return the status data contained in the untagged response `text'
 		local
 			data: STRING
@@ -136,7 +129,7 @@ feature -- Basic operations
 			end
 		end
 
-	get_search_results: LINKED_LIST [INTEGER]
+	search_results: LINKED_LIST [INTEGER]
 			-- Return the ids of the messages in the search result
 		local
 			ids: STRING
@@ -183,7 +176,7 @@ feature {NONE} -- Constants
 
 	Integer_pattern: STRING = "\d+"
 
-	
+
 
 feature {NONE} -- Constants
 

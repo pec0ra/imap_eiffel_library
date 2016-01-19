@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {IL_FETCH}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "The content of a FETCH response"
+	author: "Basile Maret"
+	EIS: "name=FETCH command", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
+	EIS: "name=FETCH response", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-7.4.2"
 
 class
 	IL_FETCH
@@ -26,7 +26,7 @@ feature -- Access
 	uid: NATURAL
 			-- The unique id of the fetched message
 
-	data: HASH_TABLE [STRING, STRING]
+	data: STRING_TABLE [STRING]
 			-- Matches data item names to their value
 
 end

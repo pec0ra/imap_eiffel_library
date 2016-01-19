@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {IL_EXPUNGE_PARSER}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "A parser for the EXPUNGE server responses"
+	author: "Basile Maret"
+	EIS: "name=EXPUNGE command", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.3"
+	EIS: "name=EXPUNGE response", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-7.4.1"
 
 class
 	IL_EXPUNGE_PARSER

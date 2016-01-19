@@ -1,8 +1,10 @@
 note
-	description: "Summary description for {MAILBOX}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "A mailbox name"
+	author: "Basile Maret"
+	EIS: "name=LIST command", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.8"
+	EIS: "name=LIST response", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-7.2.2"
+	EIS: "name=LSUB command", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.9"
+	EIS: "name=LSUB response", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-7.2.3"
 
 class
 	IL_NAME
@@ -13,7 +15,7 @@ create
 feature {NONE} -- Initialization
 
 	make_with_raw_path (a_raw_path: STRING)
-			-- Create a new mailbox with `a_raw_path'
+			-- Create a new name with `a_raw_path'
 		require
 			a_raw_path_not_empty: a_raw_path /= Void and then not a_raw_path.is_empty
 		do

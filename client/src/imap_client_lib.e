@@ -1,7 +1,7 @@
 note
-	description: "imaplib application root class"
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "An library to connect to a server via the Internet Message Access Protocol"
+	author: "Basile Maret"
+	EIS: "name=IMAP4rev1", "src=https://tools.ietf.org/html/rfc3501", "protocol=URI"
 
 class
 	IMAP_CLIENT_LIB
@@ -93,12 +93,16 @@ feature -- Basic Commands
 
 	logout
 			-- Attempt to logout
+		note
+			EIS: "name=LOGOUT", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.1.3"
 		do
 			send_action (Logout_action, create {ARRAYED_LIST [STRING]}.make (0))
 			network.set_state ({IL_NETWORK_STATE}.not_connected_state)
 		end
 
 	get_capability: LINKED_LIST [STRING]
+		note
+			EIS: "name=CAPABILITY", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.1.1"
 		require
 			network.is_connected
 		local
@@ -113,7 +117,7 @@ feature -- Basic Commands
 				correct_response_received: response.untagged_response_count = 1 or response.is_error
 			end
 			if not response.is_error then
-				create parser.make_from_text (response.get_untagged_response (0))
+				create parser.make_from_text (response.untagged_response (0))
 				Result := parser.match_capabilities
 			else
 				create Result.make
@@ -122,6 +126,8 @@ feature -- Basic Commands
 
 	noop
 			-- Send a Noop command
+		note
+			EIS: "name=NOOP", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.1.2"
 		do
 			send_action (Noop_action, create {LINKED_LIST [STRING]}.make)
 		end
@@ -144,6 +150,8 @@ feature -- Not authenticated commands
 
 	starttls
 			-- Start tls negociation
+		note
+			EIS: "name=STARTTLS", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.2.1"
 		local
 			args: LINKED_LIST [STRING]
 		do
@@ -153,6 +161,8 @@ feature -- Not authenticated commands
 
 	login (a_user_name: STRING; a_password: STRING)
 			-- Attempt to login
+		note
+			EIS: "name=LOGIN", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.2.3"
 		require
 			a_user_name_not_empty: a_user_name /= Void and then not a_user_name.is_empty
 			a_password_not_empty: a_password /= Void and then not a_password.is_empty
@@ -163,13 +173,15 @@ feature -- Not authenticated commands
 			args.extend (a_user_name)
 			args.extend (a_password)
 			send_action (Login_action, args)
-			network.update_imap_state (response_mgr.get_response (current_tag), {IL_NETWORK_STATE}.authenticated_state)
+			network.update_imap_state (response_mgr.response (current_tag), {IL_NETWORK_STATE}.authenticated_state)
 		end
 
 feature -- Authenticated commands
 
 	select_mailbox (a_mailbox_name: STRING)
 			-- Select the mailbox `a_mailbox_name' and save it into `Current.current_mailbox'
+		note
+			EIS: "name=SELECT", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.1"
 		require
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
 		local
@@ -193,6 +205,8 @@ feature -- Authenticated commands
 
 	examine_mailbox (a_mailbox_name: STRING)
 			-- Select the mailbox `a_mailbox_name' in read only and save it into `Current.current_mailbox'
+		note
+			EIS: "name=EXAMINE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.2"
 		require
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
 		local
@@ -216,6 +230,8 @@ feature -- Authenticated commands
 
 	create_mailbox (a_mailbox_name: STRING)
 			-- Create the mailbox `a_mailbox_name'
+		note
+			EIS: "name=CREATE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.3"
 		require
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
 		local
@@ -228,6 +244,8 @@ feature -- Authenticated commands
 
 	delete_mailbox (a_mailbox_name: STRING)
 			-- Delete the mailbox `a_mailbox_name'
+		note
+			EIS: "name=DELETE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.4"
 		require
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
 		local
@@ -240,6 +258,8 @@ feature -- Authenticated commands
 
 	rename_mailbox (a_mailbox_name: STRING; a_new_name: STRING)
 			-- Rename the mailbox `a_mailbox_name' to `a_new_name'
+		note
+			EIS: "name=RENAME", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.5"
 		require
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
 			a_new_name_not_empty: a_new_name /= Void and then not a_new_name.is_empty
@@ -254,6 +274,8 @@ feature -- Authenticated commands
 
 	subscribe (a_mailbox_name: STRING)
 			-- Subscribe to the mailbox `a_mailbox_name'
+		note
+			EIS: "name=SUBSCRIBE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.6"
 		require
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
 		local
@@ -266,6 +288,8 @@ feature -- Authenticated commands
 
 	unsubscribe (a_mailbox_name: STRING)
 			-- Unsubscribe from the mailbox `a_mailbox_name'
+		note
+			EIS: "name=UNSUBSCRIBE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.7"
 		require
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
 		local
@@ -279,6 +303,8 @@ feature -- Authenticated commands
 	list (a_reference_name: STRING; a_name: STRING)
 			-- List the names at `a_reference_name' in mailbox `a_name'
 			-- `a_name' may use wildcards
+		note
+			EIS: "name=LIST", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.8"
 		require
 			args_not_void: a_reference_name /= Void and a_name /= Void
 		local
@@ -293,6 +319,8 @@ feature -- Authenticated commands
 	get_list (a_reference_name: STRING; a_name: STRING): LINKED_LIST [IL_NAME]
 			-- Returns a list of the names at `a_reference_name' in mailbox `a_name'
 			-- `a_name' may use wildcards
+		note
+			EIS: "name=LIST", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.8"
 		require
 			args_not_void: a_reference_name /= Void and a_name /= Void
 		local
@@ -318,6 +346,8 @@ feature -- Authenticated commands
 	lsub (a_reference_name: STRING; a_name: STRING)
 			-- Send command lsub for `a_reference_name' in mailbox `a_name'
 			-- `a_name' may use wildcards
+		note
+			EIS: "name=LSUB", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.9"
 		require
 			args_not_void: a_reference_name /= Void and a_name /= Void
 		local
@@ -332,6 +362,8 @@ feature -- Authenticated commands
 	get_lsub (a_reference_name: STRING; a_name: STRING): LINKED_LIST [IL_NAME]
 			-- Returns a list of the name for the command lsub at `a_reference_name' in mailbox `a_name'
 			-- `a_name' may use wildcards
+		note
+			EIS: "name=LSUB", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.9"
 		require
 			args_not_void: a_reference_name /= Void and a_name /= Void
 		local
@@ -354,8 +386,10 @@ feature -- Authenticated commands
 			end
 		end
 
-	get_status (a_mailbox_name: STRING; status_data: LIST [STRING]): HASH_TABLE [INTEGER, STRING]
+	get_status (a_mailbox_name: STRING; status_data: LIST [STRING]): STRING_TABLE [INTEGER]
 			-- Return the status of the mailbox `a_mailbox_name' for status data in list `status_data'
+		note
+			EIS: "name=STATUS", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.10"
 		require
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
 			status_data_not_empty: status_data /= Void and then not status_data.is_empty
@@ -373,7 +407,7 @@ feature -- Authenticated commands
 			response := get_response (tag)
 			if not response.is_error and then response.status ~ Command_ok_label then
 				create parser.make_from_text (response.untagged_responses.at (0))
-				Result := parser.get_status_data
+				Result := parser.status_data
 			else
 				create Result.make (0)
 			end
@@ -382,6 +416,8 @@ feature -- Authenticated commands
 	append (a_mailbox_name: STRING; flags: LIST [STRING]; date_time: STRING; message_literal: STRING)
 			-- Append `message_literal' as a new message to the end of the mailbox `a_mailbox_name'
 			-- The flags in the list `flags' are set to the resulting message and if `data_time' is not empty, it is set as internal date to the message.
+		note
+			EIS: "name=APPEND", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.11"
 		require
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
 			flags_not_void: flags /= Void
@@ -411,6 +447,8 @@ feature -- Selected commands
 
 	check_command
 			-- Request a checkpoint
+		note
+			EIS: "name=CHECK", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.1"
 		local
 			args: LINKED_LIST [STRING]
 		do
@@ -420,16 +458,20 @@ feature -- Selected commands
 
 	close
 			-- Close the selected mailbox. Switch to authenticated state on success
+		note
+			EIS: "name=CLOSE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.2"
 		local
 			args: LINKED_LIST [STRING]
 		do
 			create args.make
 			send_action (Close_action, args)
-			network.update_imap_state (response_mgr.get_response (current_tag), {IL_NETWORK_STATE}.authenticated_state)
+			network.update_imap_state (response_mgr.response (current_tag), {IL_NETWORK_STATE}.authenticated_state)
 		end
 
 	expunge
 			-- Send expunge command.
+		note
+			EIS: "name=EXPUNGE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.3"
 		local
 			args: LINKED_LIST [STRING]
 		do
@@ -439,6 +481,8 @@ feature -- Selected commands
 
 	get_expunge: LINKED_LIST [INTEGER]
 			-- Send expunge command. Returns a list of the deleted messages
+		note
+			EIS: "name=EXPUNGE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.3"
 		local
 			args: LINKED_LIST [STRING]
 			tag: STRING
@@ -459,6 +503,8 @@ feature -- Selected commands
 
 	search (charset: STRING; criterias: LIST [STRING]): LINKED_LIST [INTEGER]
 			-- Return a list of message that match the criterias `criterias'
+		note
+			EIS: "name=SEARCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.4"
 		require
 			criterias_not_void: criterias /= Void
 		local
@@ -481,7 +527,7 @@ feature -- Selected commands
 			response := get_response (tag)
 			if not response.is_error and then response.status ~ Command_ok_label and then response.untagged_response_count = 1 then
 				create parser.make_from_text (response.untagged_responses.at (0))
-				Result := parser.get_search_results
+				Result := parser.search_results
 			else
 				create Result.make
 			end
@@ -490,6 +536,8 @@ feature -- Selected commands
 	fetch (a_sequence_set: IL_SEQUENCE_SET; data_items: LIST [STRING]): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set `a_sequence_set' for data items `data_items'
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		note
+			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_not_empty: data_items /= Void and then not data_items.is_empty
@@ -500,6 +548,8 @@ feature -- Selected commands
 	fetch_all (a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set `a_sequence_set' for macro ALL
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		note
+			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 		do
@@ -509,6 +559,8 @@ feature -- Selected commands
 	fetch_fast (a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set `a_sequence_set' for macro FAST
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		note
+			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 		do
@@ -518,6 +570,8 @@ feature -- Selected commands
 	fetch_full (a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set `a_sequence_set' for macro FULL
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		note
+			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 		do
@@ -527,6 +581,8 @@ feature -- Selected commands
 	fetch_string (a_sequence_set: IL_SEQUENCE_SET; data_items: STRING): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set `a_sequence_set' for data items `data_items'
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		note
+			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_not_empty: data_items /= Void and then not data_items.is_empty
@@ -537,6 +593,9 @@ feature -- Selected commands
 	fetch_uid (a_sequence_set: IL_SEQUENCE_SET; data_items: LIST [STRING]): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set of uids `a_sequence_set' for data items `data_items'
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		note
+			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
+			EIS: "name=UID", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.8"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_not_empty: data_items /= Void and then not data_items.is_empty
@@ -547,6 +606,9 @@ feature -- Selected commands
 	fetch_all_uid (a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set of uids `a_sequence_set' for macro ALL
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		note
+			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
+			EIS: "name=UID", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.8"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 		do
@@ -556,6 +618,9 @@ feature -- Selected commands
 	fetch_fast_uid (a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set of uids `a_sequence_set' for macro FAST
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		note
+			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
+			EIS: "name=UID", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.8"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 		do
@@ -565,6 +630,9 @@ feature -- Selected commands
 	fetch_full_uid (a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set of uids `a_sequence_set' for macro FULL
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		note
+			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
+			EIS: "name=UID", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.8"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 		do
@@ -574,6 +642,9 @@ feature -- Selected commands
 	fetch_string_uid (a_sequence_set: IL_SEQUENCE_SET; data_items: STRING): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set of uids `a_sequence_set' for data items `data_items'
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+		note
+			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
+			EIS: "name=UID", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.8"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_not_empty: data_items /= Void and then not data_items.is_empty
@@ -583,6 +654,8 @@ feature -- Selected commands
 
 	copy_messages (a_sequence_set: IL_SEQUENCE_SET; a_mailbox_name: STRING)
 			-- Copy the messages in `a_sequence_set' to mailbox `a_mailbox_name'
+		note
+			EIS: "name=COPY", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.7"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
@@ -597,6 +670,9 @@ feature -- Selected commands
 
 	copy_messages_uid (a_sequence_set: IL_SEQUENCE_SET; a_mailbox_name: STRING)
 			-- Copy the messages with uids in `a_sequence_set' to mailbox `a_mailbox_name'
+		note
+			EIS: "name=COPY", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.7"
+			EIS: "name=UID", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.8"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 			a_mailbox_name_not_empty: a_mailbox_name /= Void and then not a_mailbox_name.is_empty
@@ -611,6 +687,8 @@ feature -- Selected commands
 
 	store (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST [STRING])
 			-- Alter data for messages in `a_sequence_set'. Change the messages according to `data_item_name' with arguments `data_item_values'
+		note
+			EIS: "name=STORE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.6"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_name_not_empty: data_item_name /= Void and then not data_item_name.is_empty
@@ -622,6 +700,8 @@ feature -- Selected commands
 	get_store (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST [STRING]): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Alter data for messages in `a_sequence_set'. Change the messages according to `data_item_name' with arguments `data_item_values'
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure for every FETCH response received
+		note
+			EIS: "name=STORE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.6"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_name_not_empty: data_item_name /= Void and then not data_item_name.is_empty
@@ -644,6 +724,9 @@ feature -- Selected commands
 
 	store_uid (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST [STRING])
 			-- Alter data for messages with uid in `a_sequence_set'. Change the messages according to `data_item_name' with arguments `data_item_values'
+		note
+			EIS: "name=STORE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.6"
+			EIS: "name=UID", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.8"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_name_not_empty: data_item_name /= Void and then not data_item_name.is_empty
@@ -655,6 +738,9 @@ feature -- Selected commands
 	get_store_uid (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST [STRING]): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Alter data for messages with uid in `a_sequence_set'. Change the messages according to `data_item_name' with arguments `data_item_values'
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure for every FETCH response received
+		note
+			EIS: "name=STORE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.6"
+			EIS: "name=UID", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.8"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_name_not_empty: data_item_name /= Void and then not data_item_name.is_empty
@@ -677,6 +763,9 @@ feature -- Selected commands
 
 	check_for_changes: BOOLEAN
 			-- Sends a noop command and returns true iff the server sends back any change to the current mailbox
+		note
+			EIS: "name=NOOP", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.1.2"
+			EIS: "name=Message Status Update", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-5.2"
 		do
 			noop
 			receive
@@ -743,11 +832,11 @@ feature -- Basic Operations
 			tag_number: INTEGER
 		do
 			create parser.make_from_text (tag)
-			tag_number := parser.get_number
+			tag_number := parser.number
 			check
 				correct_tag: tag_number > 0 and tag_number <= current_tag_number
 			end
-			Result := response_mgr.get_response (tag)
+			Result := response_mgr.response (tag)
 		ensure
 			Result /= Void
 		end
@@ -775,6 +864,8 @@ feature -- Basic Operations
 
 	get_current_state: NATURAL
 			-- Returns the current IMAP state
+		note
+			EIS: "name=States", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-3"
 		do
 			Result := network.state
 		end
@@ -787,6 +878,8 @@ feature -- Basic Operations
 
 	needs_continuation: BOOLEAN
 			-- Return true iff the last response from the server was a command continuation request
+		note
+			EIS: "name=Command Continuation Request", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-7.5"
 		do
 			receive
 			Result := network.needs_continuation
@@ -799,8 +892,10 @@ feature -- Access
 feature {NONE} -- Implementation
 
 	current_tag_number: INTEGER
+			-- The number of the tag of the last message sent
 
 	current_tag: STRING
+			-- The tag of the last message sent
 
 	get_tag: STRING
 			-- increments the `current_tag_number' and returns a new tag, greater tha the last one
@@ -826,7 +921,6 @@ feature {NONE} -- Implementation
 			tag: STRING
 			response: IL_SERVER_RESPONSE
 			parser: IL_FETCH_PARSER
-			command: STRING
 		do
 			create args.make
 			args.extend (a_sequence_set.string)

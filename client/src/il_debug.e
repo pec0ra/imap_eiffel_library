@@ -1,8 +1,6 @@
 note
-	description: "Summary description for {IL_DEBUG}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "A debugger to format and display messages"
+	author: "Basile Maret"
 
 class
 	IL_DEBUG
@@ -13,13 +11,14 @@ create
 feature {NONE} -- Initialization
 
 	make
+			-- Create the debugger with the default value
 		do
 			debug_on := true
 		end
 
 feature -- Basic operation
 
-	dprint (a_tag: STRING; message: STRING)
+	debug_print (a_tag: STRING; message: STRING)
 			-- Print message if debugging is active
 		do
 			if debug_on then
@@ -32,17 +31,19 @@ feature -- Basic operation
 			-- Set the debugging mode to `mode'
 		do
 			debug_on := mode
+		ensure
+			debug_on_set: debug_on = mode
 		end
 
 feature -- Constants
 
-	Dinfo: STRING = "INFO: "
+	Debug_info: STRING = "INFO: "
 
-	Dwarning: STRING = "WARNING: "
+	Debug_warning: STRING = "WARNING: "
 
-	Dreceiving: STRING = "RECEIVING: "
+	Debug_receiving: STRING = "RECEIVING: "
 
-	Dsending: STRING = "SENDING: "
+	Debug_sending: STRING = "SENDING: "
 
 feature {NONE} -- Implementation
 

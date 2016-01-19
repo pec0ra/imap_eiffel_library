@@ -1,8 +1,6 @@
 note
-	description: "Summary description for {IL_SEQUENCE_SET}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "A set of message sequence numbers or uids"
+	author: "Basile Maret"
 
 class
 	IL_SEQUENCE_SET
