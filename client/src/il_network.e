@@ -57,7 +57,6 @@ feature -- Basic functions
 			tag_not_empty: not tag.is_empty
 			command_not_empty: not command.is_empty
 			command_continuation_not_needed: not needs_continuation
-			-- valid_command: TO maybe DO
 		local
 			str: STRING
 		do

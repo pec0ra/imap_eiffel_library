@@ -21,8 +21,11 @@ feature -- Basic operation
 			create Result.default_create
 			regex.compile (From_pattern)
 			if regex.matches (text) then
-				Result.item (Result.lower) := regex.captured_substring (1)
-				Result.item (Result.upper) := regex.captured_substring (2)
+				Result.item (Result.lower) := regex.captured_substring (2)
+				Result.item (Result.upper) := regex.captured_substring (3)
+			else
+				Result.item (Result.lower) := ""
+				Result.item (Result.upper) := ""
 			end
 		end
 
@@ -32,8 +35,11 @@ feature -- Basic operation
 			create Result.default_create
 			regex.compile (To_pattern)
 			if regex.matches (text) then
-				Result.item (Result.lower) := regex.captured_substring (1)
-				Result.item (Result.upper) := regex.captured_substring (2)
+				Result.item (Result.lower) := regex.captured_substring (2)
+				Result.item (Result.upper) := regex.captured_substring (3)
+			else
+				Result.item (Result.lower) := ""
+				Result.item (Result.upper) := ""
 			end
 		end
 
@@ -42,7 +48,7 @@ feature -- Basic operation
 		do
 			regex.compile (Subject_pattern)
 			if regex.matches (text) then
-				Result := regex.captured_substring (1)
+				Result := regex.captured_substring (2)
 			else
 				create Result.make_empty
 			end
@@ -53,7 +59,7 @@ feature -- Basic operation
 		do
 			regex.compile (Date_pattern)
 			if regex.matches (text) then
-				create Result.make (regex.captured_substring (3).to_integer, months.at (regex.captured_substring (2)), regex.captured_substring (1).to_integer, regex.captured_substring (4).to_integer, regex.captured_substring (5).to_integer, regex.captured_substring (6).to_integer)
+				create Result.make (regex.captured_substring (4).to_integer, months.at (regex.captured_substring (3)), regex.captured_substring (2).to_integer, regex.captured_substring (5).to_integer, regex.captured_substring (6).to_integer, regex.captured_substring (7).to_integer)
 			else
 				create Result.make (1970, 1, 1, 0, 0, 0)
 			end
@@ -62,10 +68,10 @@ feature -- Basic operation
 
 feature {NONE} -- Constants
 
-	From_pattern: STRING = "From: (.*) <(.+@.+\..+)>"
-	To_pattern: STRING = "To: (.*)? ?<(.+@.+\..+)>"
-	Subject_pattern: STRING = "Subject: (((?!%R).)*)"
-	Date_pattern: STRING = "Date: [A-Za-z]+, (\d?\d) ([A-Z][a-z][a-z]) (\d\d\d\d) (\d?\d):(\d\d):(\d\d) \+\d+"
+	From_pattern: STRING = "(from|From): (.*) <(.+@.+\..+)>"
+	To_pattern: STRING = "(to|To): (.*)? ?<(.+@.+\..+)>"
+	Subject_pattern: STRING = "(subject|Subject): (((?!%R).)*)"
+	Date_pattern: STRING = "(date|Date): [A-Za-z]+, (\d?\d) ([A-Z][a-z][a-z]) (\d\d\d\d) (\d?\d):(\d\d):(\d\d) \+\d+"
 
 feature {NONE} -- Implementation
 

@@ -6,7 +6,7 @@ class
 	IL_SEQUENCE_SET
 
 create
-	make_from_string, make_from_natural_range, make_from_string_range, make_from_list, make_wildcard
+	make_from_string, make_from_natural_range, make_from_string_range, make_from_list, make_last
 
 feature {NONE} -- Initialization
 
@@ -59,7 +59,7 @@ feature {NONE} -- Initialization
 			string.remove_tail (1)
 		end
 
-	make_wildcard
+	make_last
 			-- Set the sequence to "*"
 		do
 			string := "*"

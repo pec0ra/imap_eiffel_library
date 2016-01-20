@@ -113,7 +113,7 @@ feature -- Basic Operations
 		end
 
 	status_update
-			-- Returns true iff the text matches a status update response
+			-- Update the current mailbox with info from text
 		require
 			text_is_untagged: is_untagged_text
 		local

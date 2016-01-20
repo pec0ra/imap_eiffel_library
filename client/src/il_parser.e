@@ -76,7 +76,7 @@ feature -- Basic operations
 		do
 			regex.compile (Tag_pattern)
 			if regex.matches (text) then
-				Result := regex.captured_substring (0)
+				Result := regex.captured_substring (1)
 			else
 				Result := ""
 			end
@@ -184,7 +184,7 @@ feature {NONE} -- Constants
 
 	Untagged_response_pattern: STRING = "^\* (.*)$"
 
-	Tag_pattern: STRING = "^(\*|il\d+|\+)"
+	Tag_pattern: STRING = "^(\*|il\d+|\+) "
 
 	Integer_from_tag_pattern: STRING = "^il(\d+)$"
 
