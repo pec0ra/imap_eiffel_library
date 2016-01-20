@@ -13,7 +13,7 @@ feature {NONE} -- Initialization
 	make
 			-- Create the debugger with the default value
 		do
-			debug_on := true
+			debug_mode := Show_warning
 		end
 
 feature -- Basic operation
@@ -21,18 +21,30 @@ feature -- Basic operation
 	debug_print (a_tag: STRING; message: STRING)
 			-- Print message if debugging is active
 		do
-			if debug_on then
+			if debug_mode = Show_all then
+				print (Debug_tag + a_tag + message)
+				io.put_new_line
+
+			elseif debug_mode = Show_info and a_tag /~ Debug_receiving and a_tag /~ Debug_sending then
+				print (Debug_tag + a_tag + message)
+				io.put_new_line
+
+			elseif debug_mode = Show_warning and a_tag /~ Debug_info and a_tag /~ Debug_receiving and a_tag /~ Debug_sending then
 				print (Debug_tag + a_tag + message)
 				io.put_new_line
 			end
+
+
 		end
 
-	set_debug (mode: BOOLEAN)
+	set_debug (mode: NATURAL)
 			-- Set the debugging mode to `mode'
+		require
+			correct_mode: mode >= 1 and mode <= 4
 		do
-			debug_on := mode
+			debug_mode := mode
 		ensure
-			debug_on_set: debug_on = mode
+			debug_on_set: debug_mode = mode
 		end
 
 feature -- Constants
@@ -45,9 +57,18 @@ feature -- Constants
 
 	Debug_sending: STRING = "SENDING: "
 
+
+	Show_all: NATURAL = 1
+	Show_info: NATURAL = 2
+	Show_warning: NATURAL = 3
+	Show_nothing: NATURAL = 4
+
+
+	Server_response_not_ok: STRING = "The server response was not an ok response"
+
 feature {NONE} -- Implementation
 
-	debug_on: BOOLEAN
+	debug_mode: NATURAL
 
 	Debug_tag: STRING = "%TDEBUG: "
 

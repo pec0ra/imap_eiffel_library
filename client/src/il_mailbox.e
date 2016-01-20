@@ -72,6 +72,16 @@ feature -- Basic Operations
 			is_updated := true
 		end
 
+	unset_updated
+			-- Erase the recent changes and set the mailbox as not updated
+		do
+			create {LINKED_LIST [INTEGER]}recent_expunge.make
+			create recent_flag_fetches.make (0)
+			is_updated := false
+		ensure
+			not was_updated
+		end
+
 	was_updated: BOOLEAN
 			-- Returns true iff there are changes in the mailbox since the last call to this function or access to `recent_flag_fetches' or `recent_expunge'
 		do

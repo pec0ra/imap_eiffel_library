@@ -176,6 +176,14 @@ feature {NONE} -- Implementation
 			end
 			server_response.set_tagged_text (a_response)
 			server_response.set_status (parser.status)
+
+			if parser.status /~ Command_ok_label then
+				debugger.debug_print (debugger.debug_warning, debugger.Server_response_not_ok)
+			end
+
+			server_response.set_response_code (parser.response_code)
+			server_response.set_information_message (parser.information_message)
+
 			responses_table.put (server_response, tag)
 			last_tag_received := tag
 		end

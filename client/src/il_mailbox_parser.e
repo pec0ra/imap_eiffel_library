@@ -109,6 +109,7 @@ feature -- Basic Operations
 					end
 				end
 			end
+			current_mailbox.unset_updated
 		end
 
 	status_update

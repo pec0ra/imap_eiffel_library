@@ -150,6 +150,28 @@ feature -- Basic operations
 			end
 		end
 
+	response_code: STRING
+			-- Return the response code in the bracket if text is matching a tagged message with a response code
+		do
+			regex.compile (Response_code_pattern)
+			if regex.matches (text) then
+				Result := regex.captured_substring (2)
+			else
+				create Result.make_empty
+			end
+		end
+
+	information_message: STRING
+			-- Return the information message if text is matching a tagged message with an information message
+		do
+			regex.compile (Information_message_pattern)
+			if regex.matches (text) then
+				Result := regex.captured_substring (3)
+			else
+				create Result.make_empty
+			end
+		end
+
 feature {NONE} -- Constants
 
 	Connection_ok_pattern: STRING = "^\* OK (.*)$"
@@ -176,6 +198,9 @@ feature {NONE} -- Constants
 
 	Integer_pattern: STRING = "\d+"
 
+	Response_code_pattern: STRING = "^il\d+ (OK|NO|BAD) \[([A-Z]+)].*$"
+
+	Information_message_pattern: STRING = "^il\d+ (OK|NO|BAD) (\[.+] )?(.*)$"
 
 
 feature {NONE} -- Constants

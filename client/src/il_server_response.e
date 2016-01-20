@@ -24,9 +24,12 @@ feature {NONE} -- Initialization
 			create {LINKED_LIST [STRING]}untagged_responses.make
 			status := Command_no_label
 			is_error := false
+			create response_code.make_empty
+			create information_message.make_empty
 		ensure
 			tagged_text_set: tagged_text = a_text
 		end
+
 
 	make_empty
 			-- Create an empty server response
@@ -36,6 +39,8 @@ feature {NONE} -- Initialization
 			create {LINKED_LIST [STRING]}untagged_responses.make
 			status := Command_no_label
 			is_error := false
+			create response_code.make_empty
+			create information_message.make_empty
 		end
 
 	make_error
@@ -46,6 +51,8 @@ feature {NONE} -- Initialization
 			create {LINKED_LIST [STRING]}untagged_responses.make
 			status := Command_no_label
 			is_error := true
+			create response_code.make_empty
+			create information_message.make_empty
 		end
 
 feature -- Access
@@ -55,6 +62,12 @@ feature -- Access
 
 	status: STRING
 			-- The status of the response
+
+	response_code: STRING
+			-- The response code inside the square brackets in the tagged text
+
+	information_message: STRING
+			-- The human readable information message in the tagged text
 
 	untagged_responses: LIST [STRING]
 			-- A list of the untagged responses before the closing tagged response
@@ -104,6 +117,22 @@ feature -- Basic operations
 			status := a_status
 		ensure
 			status_set: status = a_status
+		end
+
+	set_response_code (a_response_code: STRING)
+			-- Set the response code to `a_response_code'
+		require
+			a_response_code_not_void: a_response_code /= Void
+		do
+			response_code := a_response_code
+		end
+
+	set_information_message (a_information_message: STRING)
+			-- Set the response code to `a_information_message'
+		require
+			a_information_message_not_void: a_information_message /= Void
+		do
+			information_message := a_information_message
 		end
 
 feature -- Constants

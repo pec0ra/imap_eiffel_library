@@ -38,7 +38,7 @@ feature {NONE} -- Initialization
 
 feature -- Basic operations
 
-	get_list: LIST [IL_NAME]
+	mailbox_names: LIST [IL_NAME]
 			-- Return a list with the mailbox names
 		local
 			mailbox: IL_NAME

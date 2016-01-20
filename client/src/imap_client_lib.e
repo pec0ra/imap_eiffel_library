@@ -174,7 +174,7 @@ feature -- Not authenticated commands
 feature -- Authenticated commands
 
 	select_mailbox (a_mailbox_name: STRING)
-			-- Select the mailbox `a_mailbox_name' and save it into `Current.current_mailbox'
+			-- Select the mailbox `a_mailbox_name' and save it into `current_mailbox'
 		note
 			EIS: "name=SELECT", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.1"
 		require
@@ -199,7 +199,7 @@ feature -- Authenticated commands
 		end
 
 	examine_mailbox (a_mailbox_name: STRING)
-			-- Select the mailbox `a_mailbox_name' in read only and save it into `Current.current_mailbox'
+			-- Select the mailbox `a_mailbox_name' in read only and save it into `current_mailbox'
 		note
 			EIS: "name=EXAMINE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.3.2"
 		require
@@ -332,7 +332,7 @@ feature -- Authenticated commands
 			response := get_response (tag)
 			if not response.is_error and then response.status ~ Command_ok_label then
 				create parser.make_from_response (response, false)
-				Result := parser.get_list
+				Result := parser.mailbox_names
 			else
 				create {ARRAYED_LIST [IL_NAME]}Result.make (0)
 			end
@@ -375,7 +375,7 @@ feature -- Authenticated commands
 			response := get_response (tag)
 			if not response.is_error and then response.status ~ Command_ok_label then
 				create parser.make_from_response (response, true)
-				Result := parser.get_list
+				Result := parser.mailbox_names
 			else
 				create {ARRAYED_LIST [IL_NAME]}Result.make (0)
 			end
