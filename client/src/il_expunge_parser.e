@@ -31,10 +31,10 @@ feature {NONE} -- Initialization
 
 feature -- Basic Operations
 
-	parse_expunged: LINKED_LIST [INTEGER]
+	parse_expunged: LIST [INTEGER]
 			-- Parse the response and return the list of deleted messages
 		do
-			create Result.make
+			create {LINKED_LIST [INTEGER]}Result.make
 			from
 				untagged_responses.start
 			until
@@ -54,6 +54,6 @@ feature {NONE} -- Constants
 
 feature {NONE} -- Implementation
 
-	untagged_responses: LINKED_LIST [STRING]
+	untagged_responses: LIST [STRING]
 
 end

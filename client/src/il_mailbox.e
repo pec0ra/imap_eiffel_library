@@ -16,9 +16,9 @@ feature {NONE} -- Initialization
 		do
 			is_selected := false
 			create name.make_empty
-			create flags.make
-			create permanent_flags.make
-			create recent_expunge.make
+			create {LINKED_LIST [STRING]}flags.make
+			create {LINKED_LIST [STRING]}permanent_flags.make
+			create {LINKED_LIST [INTEGER]}recent_expunge.make
 			create recent_flag_fetches.make (0)
 		end
 
@@ -28,9 +28,9 @@ feature -- Access
 
 	name: STRING
 
-	flags: LINKED_LIST [STRING]
+	flags: LIST [STRING]
 
-	permanent_flags: LINKED_LIST [STRING]
+	permanent_flags: LIST [STRING]
 
 	exists: INTEGER
 
@@ -51,9 +51,9 @@ feature -- Basic Operations
 		do
 			is_selected := false
 			create name.make_empty
-			create flags.make
-			create permanent_flags.make
-			create recent_expunge.make
+			create {LINKED_LIST [STRING]}flags.make
+			create {LINKED_LIST [STRING]}permanent_flags.make
+			create {LINKED_LIST [INTEGER]}recent_expunge.make
 			create recent_flag_fetches.make (0)
 			exists := -1
 			recent := -1
@@ -119,12 +119,12 @@ feature -- Basic Operations
 			uid_validity := n
 		end
 
-	set_flags (a_flags: LINKED_LIST [STRING])
+	set_flags (a_flags: LIST [STRING])
 		do
 			flags := a_flags
 		end
 
-	set_permanent_flags (a_permanent_flags: LINKED_LIST [STRING])
+	set_permanent_flags (a_permanent_flags: LIST [STRING])
 		do
 			permanent_flags := a_permanent_flags
 		end
@@ -143,11 +143,11 @@ feature -- Basic Operations
 			recent_expunge.has (a_seq_number)
 		end
 
-	get_recent_expunge: LINKED_LIST [INTEGER]
+	get_recent_expunge: LIST [INTEGER]
 			-- Return the list `recent_expunge' and clear it
 		do
 			Result := recent_expunge
-			create recent_expunge.make
+			create {LINKED_LIST [INTEGER]}recent_expunge.make
 		ensure
 			recent_expunge_cleared: recent_expunge.is_empty
 			result_old_recent_expunge: Result = old recent_expunge
@@ -177,7 +177,7 @@ feature {NONE} -- Implementation
 
 	is_updated: BOOLEAN
 
-	recent_expunge: LINKED_LIST [INTEGER]
+	recent_expunge: LIST [INTEGER]
 
 	recent_flag_fetches: HASH_TABLE [LIST [STRING], INTEGER]
 			-- matches the message sequence number to a list of flags

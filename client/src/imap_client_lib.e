@@ -8,8 +8,6 @@ class
 
 inherit
 
-	ARGUMENTS
-
 	IL_CONSTANTS
 
 	IL_IMAP_ACTION
@@ -100,7 +98,7 @@ feature -- Basic Commands
 			network.set_state ({IL_NETWORK_STATE}.not_connected_state)
 		end
 
-	get_capability: LINKED_LIST [STRING]
+	get_capability: LIST [STRING]
 		note
 			EIS: "name=CAPABILITY", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.1.1"
 		require
@@ -120,7 +118,7 @@ feature -- Basic Commands
 				create parser.make_from_text (response.untagged_response (0))
 				Result := parser.match_capabilities
 			else
-				create Result.make
+				create {ARRAYED_LIST [STRING]}Result.make (0)
 			end
 		end
 
@@ -129,7 +127,7 @@ feature -- Basic Commands
 		note
 			EIS: "name=NOOP", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.1.2"
 		do
-			send_action (Noop_action, create {LINKED_LIST [STRING]}.make)
+			send_action (Noop_action, create {ARRAYED_LIST [STRING]}.make (0))
 		end
 
 feature -- Not connected commands
@@ -152,11 +150,8 @@ feature -- Not authenticated commands
 			-- Start tls negociation
 		note
 			EIS: "name=STARTTLS", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.2.1"
-		local
-			args: LINKED_LIST [STRING]
 		do
-			create args.make
-			send_action (Starttls_action, args)
+			send_action (Starttls_action, create {ARRAYED_LIST [STRING]}.make (0))
 		end
 
 	login (a_user_name: STRING; a_password: STRING)
@@ -316,7 +311,7 @@ feature -- Authenticated commands
 			send_action (List_action, args)
 		end
 
-	get_list (a_reference_name: STRING; a_name: STRING): LINKED_LIST [IL_NAME]
+	get_list (a_reference_name: STRING; a_name: STRING): LIST [IL_NAME]
 			-- Returns a list of the names at `a_reference_name' in mailbox `a_name'
 			-- `a_name' may use wildcards
 		note
@@ -339,7 +334,7 @@ feature -- Authenticated commands
 				create parser.make_from_response (response, false)
 				Result := parser.get_list
 			else
-				create Result.make
+				create {ARRAYED_LIST [IL_NAME]}Result.make (0)
 			end
 		end
 
@@ -359,7 +354,7 @@ feature -- Authenticated commands
 			send_action (Lsub_action, args)
 		end
 
-	get_lsub (a_reference_name: STRING; a_name: STRING): LINKED_LIST [IL_NAME]
+	get_lsub (a_reference_name: STRING; a_name: STRING): LIST [IL_NAME]
 			-- Returns a list of the name for the command lsub at `a_reference_name' in mailbox `a_name'
 			-- `a_name' may use wildcards
 		note
@@ -382,7 +377,7 @@ feature -- Authenticated commands
 				create parser.make_from_response (response, true)
 				Result := parser.get_list
 			else
-				create Result.make
+				create {ARRAYED_LIST [IL_NAME]}Result.make (0)
 			end
 		end
 
@@ -449,22 +444,16 @@ feature -- Selected commands
 			-- Request a checkpoint
 		note
 			EIS: "name=CHECK", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.1"
-		local
-			args: LINKED_LIST [STRING]
 		do
-			create args.make
-			send_action (Check_action, args)
+			send_action (Check_action, create {ARRAYED_LIST [STRING]}.make (0))
 		end
 
 	close
 			-- Close the selected mailbox. Switch to authenticated state on success
 		note
 			EIS: "name=CLOSE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.2"
-		local
-			args: LINKED_LIST [STRING]
 		do
-			create args.make
-			send_action (Close_action, args)
+			send_action (Close_action, create {ARRAYED_LIST [STRING]}.make (0))
 			network.update_imap_state (response_mgr.response (current_tag), {IL_NETWORK_STATE}.authenticated_state)
 		end
 
@@ -472,14 +461,11 @@ feature -- Selected commands
 			-- Send expunge command.
 		note
 			EIS: "name=EXPUNGE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.3"
-		local
-			args: LINKED_LIST [STRING]
 		do
-			create args.make
-			send_action (Expunge_action, args)
+			send_action (Expunge_action, create {ARRAYED_LIST [STRING]}.make (0))
 		end
 
-	get_expunge: LINKED_LIST [INTEGER]
+	get_expunge: LIST [INTEGER]
 			-- Send expunge command. Returns a list of the deleted messages
 		note
 			EIS: "name=EXPUNGE", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.3"
@@ -497,11 +483,11 @@ feature -- Selected commands
 				create parser.make_from_response (response)
 				Result := parser.parse_expunged
 			else
-				create Result.make
+				create {ARRAYED_LIST [INTEGER]}Result.make (0)
 			end
 		end
 
-	search (charset: STRING; criterias: LIST [STRING]): LINKED_LIST [INTEGER]
+	search (charset: STRING; criterias: LIST [STRING]): LIST [INTEGER]
 			-- Return a list of message that match the criterias `criterias'
 		note
 			EIS: "name=SEARCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.4"
@@ -529,7 +515,7 @@ feature -- Selected commands
 				create parser.make_from_text (response.untagged_responses.at (0))
 				Result := parser.search_results
 			else
-				create Result.make
+				create {ARRAYED_LIST [INTEGER]}Result.make (0)
 			end
 		end
 

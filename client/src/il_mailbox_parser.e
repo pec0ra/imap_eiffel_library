@@ -39,7 +39,7 @@ feature {NONE} -- Initialization
 		do
 			precursor (a_text)
 			create name.make_empty
-			create untagged_responses.make
+			create {LINKED_LIST [STRING]}untagged_responses.make
 		end
 
 feature -- Basic Operations
@@ -179,16 +179,16 @@ feature {NONE} -- Constants
 
 feature {NONE} -- Implementation
 
-	untagged_responses: LINKED_LIST [STRING]
+	untagged_responses: LIST [STRING]
 
 	name: STRING
 
-	parse_flags (raw_flags: STRING): LINKED_LIST [STRING]
+	parse_flags (raw_flags: STRING): LIST [STRING]
 			-- Return a list containing the flags in `raw_flags'
 		local
 			flag_regex: RX_PCRE_REGULAR_EXPRESSION
 		do
-			create Result.make
+			create {LINKED_LIST [STRING]}Result.make
 			create flag_regex.make
 			flag_regex.compile (Flag_pattern)
 			from

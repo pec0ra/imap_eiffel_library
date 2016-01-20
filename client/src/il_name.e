@@ -21,21 +21,26 @@ feature {NONE} -- Initialization
 		do
 			create name.make_empty
 			raw_path := a_raw_path
-			create path.make
-			create attributes.make
+			create {LINKED_LIST [STRING]} path.make
+			create {LINKED_LIST [STRING]} attributes.make
 		end
 
 feature -- Access
 
 	name: STRING
+			-- The name of the mailbox without the path
 
 	raw_path: STRING
+			-- The name of the mailbox with the path as received in the server response
 
-	path: LINKED_LIST [STRING]
+	path: LIST [STRING]
+			-- The list of mailbox names making the path in which the mailbox is
 
 	hierarchy_delimiter: CHARACTER
+			-- The character used to delimit the mailbox names in the raw_path
 
-	attributes: LINKED_LIST [STRING]
+	attributes: LIST [STRING]
+			-- A list of the attributes of the mailbox
 
 feature -- Basic Operations
 
@@ -48,6 +53,7 @@ feature -- Basic Operations
 		end
 
 	set_hierarchy_delimiter (a_hierarchy_delimiter: CHARACTER)
+			-- Set `hierarchy_delimiter' to `a_hierarchy_delimiter'
 		do
 			hierarchy_delimiter := a_hierarchy_delimiter
 		end

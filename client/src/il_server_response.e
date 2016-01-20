@@ -21,7 +21,7 @@ feature {NONE} -- Initialization
 			a_text_not_empty: a_text /= Void and then not a_text.is_empty
 		do
 			tagged_text := a_text
-			create untagged_responses.make
+			create {LINKED_LIST [STRING]}untagged_responses.make
 			status := Command_no_label
 			is_error := false
 		ensure
@@ -33,7 +33,7 @@ feature {NONE} -- Initialization
 			-- This is used to add the untagged responses before the tagged response
 		do
 			tagged_text := ""
-			create untagged_responses.make
+			create {LINKED_LIST [STRING]}untagged_responses.make
 			status := Command_no_label
 			is_error := false
 		end
@@ -43,7 +43,7 @@ feature {NONE} -- Initialization
 			-- This is used when the message could not be parsed
 		do
 			tagged_text := ""
-			create untagged_responses.make
+			create {LINKED_LIST [STRING]}untagged_responses.make
 			status := Command_no_label
 			is_error := true
 		end
@@ -56,7 +56,7 @@ feature -- Access
 	status: STRING
 			-- The status of the response
 
-	untagged_responses: LINKED_LIST [STRING]
+	untagged_responses: LIST [STRING]
 			-- A list of the untagged responses before the closing tagged response
 
 	is_error: BOOLEAN

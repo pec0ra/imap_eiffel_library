@@ -80,27 +80,27 @@ feature -- Access
 
 feature -- Implementation
 
-	any_state_actions: LINKED_LIST [NATURAL]
+	any_state_actions: LIST [NATURAL]
 			-- Valid actions in any state
 		once
-			create Result.make
+			create {LINKED_LIST [NATURAL]}Result.make
 			Result.extend ({IL_IMAP_ACTION}.Capability_action)
 			Result.extend ({IL_IMAP_ACTION}.Noop_action)
 			Result.extend ({IL_IMAP_ACTION}.Logout_action)
 		end
 
-	not_authenticated_state_actions: LINKED_LIST [NATURAL]
+	not_authenticated_state_actions: LIST [NATURAL]
 			-- Valid actions in not authenticated state
 		once
-			create Result.make
+			create {LINKED_LIST [NATURAL]}Result.make
 			Result.extend ({IL_IMAP_ACTION}.Login_action)
 			Result.extend ({IL_IMAP_ACTION}.Starttls_action)
 		end
 
-	authenticated_state_actions: LINKED_LIST [NATURAL]
+	authenticated_state_actions: LIST [NATURAL]
 			-- Valid actions in authenticated state
 		once
-			create Result.make
+			create {LINKED_LIST [NATURAL]}Result.make
 			Result.extend ({IL_IMAP_ACTION}.Select_action)
 			Result.extend ({IL_IMAP_ACTION}.Examine_action)
 			Result.extend ({IL_IMAP_ACTION}.Create_action)
@@ -114,10 +114,10 @@ feature -- Implementation
 			Result.extend ({IL_IMAP_ACTION}.Append_action)
 		end
 
-	selected_state_actions: LINKED_LIST [NATURAL]
+	selected_state_actions: LIST [NATURAL]
 			-- Valid actions in selected state
 		once
-			create Result.make
+			create {LINKED_LIST [NATURAL]}Result.make
 			Result.extend ({IL_IMAP_ACTION}.Select_action)
 			Result.extend ({IL_IMAP_ACTION}.Examine_action)
 			Result.extend ({IL_IMAP_ACTION}.Check_action)

@@ -44,12 +44,12 @@ feature -- Basic operations
 			Result := regex.matches (text)
 		end
 
-	match_capabilities: LINKED_LIST [STRING]
+	match_capabilities: LIST [STRING]
 			-- Returns a list of all the capabilities matched in text
 			-- Returns an empty list if `text' doesn't match a correct capability response
 		do
 			regex.compile (Capabilities_pattern)
-			create Result.make
+			create {LINKED_LIST [STRING]}Result.make
 			if regex.matches (text) then
 				create regex.make
 				regex.compile (Capability_pattern)
@@ -129,12 +129,12 @@ feature -- Basic operations
 			end
 		end
 
-	search_results: LINKED_LIST [INTEGER]
+	search_results: LIST [INTEGER]
 			-- Return the ids of the messages in the search result
 		local
 			ids: STRING
 		do
-			create Result.make
+			create {LINKED_LIST [INTEGER]}Result.make
 			regex.compile (Search_result_pattern)
 			if regex.matches (text) then
 				ids := regex.captured_substring (1)

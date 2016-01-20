@@ -76,6 +76,6 @@ feature {NONE} -- Constants
 
 feature {NONE} -- Implementation
 
-	untagged_responses: LINKED_LIST [STRING]
+	untagged_responses: LIST [STRING]
 
 end

@@ -38,13 +38,13 @@ feature {NONE} -- Initialization
 
 feature -- Basic operations
 
-	get_list: LINKED_LIST [IL_NAME]
+	get_list: LIST [IL_NAME]
 			-- Return a list with the mailbox names
 		local
 			mailbox: IL_NAME
 			raw_path, raw_attributes: STRING
 		do
-			create Result.make
+			create {LINKED_LIST [IL_NAME]}Result.make
 			regex.compile (List_item_pattern)
 			from
 				mailbox_list.start
@@ -84,7 +84,7 @@ feature {NONE} -- Constants
 
 feature {NONE} -- Implementation
 
-	mailbox_list: LINKED_LIST [STRING]
+	mailbox_list: LIST [STRING]
 
 	parse_raw_path (a_raw_path: STRING; a_mailbox: IL_NAME; hierarchy_delimiter: STRING)
 			-- Sets the path and name to `a_mailbox' from `a_raw_path'
@@ -140,10 +140,10 @@ feature {NONE} -- Implementation
 			end
 		end
 
-	escaped_chars: LINKED_LIST [STRING]
+	escaped_chars: LIST [STRING]
 			-- Charachters we need to escape in regex
 		once
-			create Result.make
+			create {LINKED_LIST [STRING]}Result.make
 			Result.extend ("\")
 			Result.extend ("^")
 			Result.extend ("$")

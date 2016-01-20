@@ -23,6 +23,7 @@ feature {NONE} -- Initialization
 			network := a_network
 			create responses_table.make (0)
 			last_tag_received := Tag_prefix + "0"
+			Max_stored_responses := Default_max_stored_responses
 		ensure
 			network_set: network = a_network
 		end
@@ -76,6 +77,14 @@ feature -- Basic operations
 			remove_old_responses
 		ensure
 			Result_not_void: Result /= Void
+		end
+
+	set_max_stored_responses (a_max: INTEGER)
+			-- Change the number of stored response. When this number is reached, the oldest responses are removed
+		require
+			a_max_correct: a_max > 0
+		do
+			max_stored_responses := a_max
 		end
 
 feature {NONE} -- Implementation
@@ -215,5 +224,8 @@ feature {NONE} -- Implementation
 	last_tag_deleted: INTEGER
 
 	network: IL_NETWORK
+
+	Max_stored_responses: INTEGER
+			-- The default maximum number of responses we store in the response manager before we start to remove them
 
 end
