@@ -7,7 +7,7 @@ deferred class
 
 feature -- Constants
 
-	Default_port: INTEGER = 142
+	Default_port: INTEGER = 143
 			-- The default port for IMAP
 
 	Default_ssl_port: INTEGER = 993
@@ -40,6 +40,12 @@ feature -- Constants
 		once
 			create Result.make
 		end
+
+	Message_status: STRING = "MESSAGES"
+	Recent_status: STRING = "RECENT"
+	Uid_next_status: STRING = "UIDNEXT"
+	Uid_validity_status: STRING = "UIDVALIDIY"
+	Unseen_status: STRING = "UNSEEN"
 
 	All_macro: STRING = "ALL"
 			-- Macro equivalent to: (FLAGS INTERNALDATE RFC822.SIZE ENVELOPE)

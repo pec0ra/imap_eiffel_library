@@ -88,7 +88,7 @@ feature -- Basic functions
 			socket_connected: socket.is_connected
 			command_not_empty: not command.is_empty
 		do
-			socket.put_string (command)
+			socket.put_string (command + "%R")
 			socket.put_new_line
 			debugger.debug_print (debugger.debug_sending, command)
 		end
