@@ -7,6 +7,7 @@ This library provides an easy access to almost all the commands of IMAP4rev1 and
 
 ## Contents
 * **src** : Contains the library classes
+* **examples** : Contains examples of how to use the library
 
 ## Getting started
 
