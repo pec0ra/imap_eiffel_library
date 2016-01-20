@@ -58,7 +58,7 @@ feature -- Basic operations
 					until
 						not data_regex.has_matched
 					loop
-						fetch.data.put (data_regex.captured_substring (4), data_regex.captured_substring (1))
+						fetch.data.put (data_regex.captured_substring (6), data_regex.captured_substring (1))
 						data_regex.next_match
 					end
 					Result.put (fetch, uid)
@@ -72,7 +72,7 @@ feature {NONE} -- Constants
 
 	Fetch_pattern: STRING = "^\* ([0-9]+) FETCH \((.+)\)$"
 
-	Data_pattern: STRING = "%R([A-Z0-9.]+(\[.+])?) ({\d+} )?(((?!%R).)*)" -- TODO: Find a better pattern
+	Data_pattern: STRING = "%R?((BODY|FLAGS|BODYSTRUCTURE|ENVELOPE|INTERNALDATE|RFC822|UID)(\[((?!%R).)*])?) ({\d+} )?(((?!%R).)*)"
 
 feature {NONE} -- Implementation
 

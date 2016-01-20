@@ -56,6 +56,7 @@ feature {NONE} -- Initialization
 			current_tag_number := 0
 			current_tag := Tag_prefix + "0"
 			create response_mgr.make_with_network (network)
+			current_mailbox.unselect
 		ensure
 			network /= Void
 			response_mgr /= Void
@@ -82,6 +83,7 @@ feature {NONE} -- Initialization
 			current_tag_number := 0
 			current_tag := Tag_prefix + "0"
 			create response_mgr.make_with_network (network)
+			current_mailbox.unselect
 		ensure
 			network /= Void
 			response_mgr /= Void
@@ -400,8 +402,8 @@ feature -- Authenticated commands
 			tag := get_tag
 			send_action_with_tag (tag, Status_action, args)
 			response := get_response (tag)
-			if not response.is_error and then response.status ~ Command_ok_label then
-				create parser.make_from_text (response.untagged_responses.at (0))
+			if not response.is_error and then response.status ~ Command_ok_label and then response.untagged_response_count > 0 then
+				create parser.make_from_text (response.untagged_responses.at (1))
 				Result := parser.status_data
 			else
 				create Result.make (0)

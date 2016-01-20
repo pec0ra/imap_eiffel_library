@@ -14,12 +14,7 @@ feature {NONE} -- Initialization
 	make
 			-- Create the mailbox
 		do
-			is_selected := false
-			create name.make_empty
-			create {LINKED_LIST [STRING]}flags.make
-			create {LINKED_LIST [STRING]}permanent_flags.make
-			create {LINKED_LIST [INTEGER]}recent_expunge.make
-			create recent_flag_fetches.make (0)
+			unselect
 		end
 
 feature -- Access
