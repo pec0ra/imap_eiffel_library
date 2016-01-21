@@ -88,7 +88,6 @@ feature -- Basic operation
 
 					tuple := message.item.data.at (From_field)
 					if attached {TUPLE} tuple and then attached {STRING} tuple.at (2) as field then
-						print (field)
 						create parser.make_from_text (field)
 						print ("From : ")
 						print (parser.from_field.at (1).out + " (" + parser.from_field.at (2).out + ")")

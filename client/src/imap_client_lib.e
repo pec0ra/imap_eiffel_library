@@ -514,7 +514,7 @@ feature -- Selected commands
 			send_action_with_tag (tag, Search_action, args)
 			response := get_response (tag)
 			if not response.is_error and then response.status ~ Command_ok_label and then response.untagged_response_count = 1 then
-				create parser.make_from_text (response.untagged_responses.at (0))
+				create parser.make_from_text (response.untagged_responses.at (1))
 				Result := parser.search_results
 			else
 				create {ARRAYED_LIST [INTEGER]}Result.make (0)

@@ -95,6 +95,12 @@ feature -- Access
 
 feature -- Basic operations
 
+	is_ok: BOOLEAN
+			-- Returns true iff the status is OK
+		do
+			Result := status ~ Command_ok_label
+		end
+
 	add_untagged_response (a_text: STRING)
 			-- add an untagged response `a_text' to `untagged_response' or create a new fetch
 		require

@@ -56,6 +56,8 @@ feature -- Basic Operations
 			regex.match (text)
 			if regex.captured_substring (1) ~ "READ-ONLY" then
 				current_mailbox.set_read_only (true)
+			else
+				current_mailbox.set_read_only (false)
 			end
 			across
 				untagged_responses as response

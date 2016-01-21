@@ -57,37 +57,39 @@ feature -- Basic operations
 			if regex.matches (text) then
 				Result := true
 			else
-				fetch_bodystructure
-				fetch_envelope
-				fetch_internaldate
-				fetch_flags
-				fetch_size
-				fetch_uid
-
 				regex.compile (Complete_fetch_pattern)
+
 				if regex.matches (text) then
+					text := regex.captured_substring (1)
 					Result := true
 				else
 					fetch_bodyb
 					Result := false
 				end
+				fetch_bodystructure
+				fetch_body
+				fetch_envelope
+				fetch_internaldate
+				fetch_flags
+				fetch_size
+				fetch_uid
 			end
 
 		end
 
 feature {NONE} -- Constants
 
-	Bodyb_pattern: STRING = ".*(BODY(\[.*])|RFC822|RFC822\.HEADER|RFC822.TEXT) {(\d+)}%R%N"
+	Bodyb_pattern: STRING = ".*(BODY(\.PEEK)?(\[.*])|RFC822|RFC822\.HEADER|RFC822.TEXT) {(\d+)}%R%N"
 
-	Body_pattern: STRING = ".*(BODY) \((.*)\)"
+	Body_pattern: STRING = ".*(BODY) \((((?![A-Z] \().)*)\)"
 
-	Flags_pattern: STRING = ".*(FLAGS) \((.*)\)"
+	Flags_pattern: STRING = ".*(FLAGS) \(([^)]*)\)"
 
-	Bodystructure_pattern: STRING = ".*(BODYSTRUCTURE) \((.*)\)"
+	Bodystructure_pattern: STRING = ".*(BODYSTRUCTURE) \((((?![A-Z] \().)*)\)"
 
-	Envelope_pattern: STRING = ".*(ENVELOPE) \((.*)\)"
+	Envelope_pattern: STRING = ".*(ENVELOPE) \(((%"[^%"]*%" ?|\((\((%"[^%"]*%" ?|NIL ?)+\))+\) ?|NIL ?)+)\)"
 
-	Internaldate_pattern: STRING = ".*(INTERNALDATE) %"(.*)%""
+	Internaldate_pattern: STRING = ".*(INTERNALDATE) %"([^%"]*)%""
 
 	Size_pattern: STRING = ".*(RFC822\.SIZE) (\d+)"
 
@@ -97,7 +99,7 @@ feature {NONE} -- Constants
 
 	Fetch_end_pattern: STRING = "^ ?\)%R%N$"
 
-	Complete_fetch_pattern: STRING = "^\* (\d+) FETCH \([^{]*\)%R%N$"
+	Complete_fetch_pattern: STRING = "^\* \d+ FETCH \(([^{]*)\)%R%N$"
 
 feature {NONE} -- Implementation
 
@@ -127,7 +129,7 @@ feature {NONE} -- Implementation
 			regex.compile (Bodyb_pattern)
 			if regex.matches (text) then
 				fetch.set_last_key (regex.captured_substring (1))
-				size := regex.captured_substring (3).to_integer
+				size := regex.captured_substring (4).to_integer
 				fetch.last_item.put (size, 1)
 				fetch.last_item.put (create {STRING}.make_empty, 2)
 				fetch.set_literal_left (size)
