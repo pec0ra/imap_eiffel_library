@@ -94,25 +94,36 @@ feature {NONE} -- Implementation
 		local
 			a_response, tag: STRING
 			parser: IL_PARSER
+			server_response: detachable IL_SERVER_RESPONSE
 		do
 			a_response := network.line
 			if not a_response.is_empty then
-				if a_response.count > 1 then
-					a_response.remove_tail (1)
+				a_response.append_string ("%N")
+
+				-- The first two branches are when the current fetch needs to be completed.
+				server_response := responses_table.at (Next_response_tag)
+				if attached {IL_SERVER_RESPONSE} server_response and then server_response.literal_left > 0 then
+					add_literal_action (a_response, server_response)
+
+				elseif attached {IL_SERVER_RESPONSE} server_response and then not server_response.last_fetch_complete then
+					server_response.add_text_to_fetch (a_response)
+
+				-- This branch is for all other cases
+				else
 					create parser.make_from_text (a_response)
 					tag := parser.tag
 					if parser.matches_bye then
 						bye_action
 					elseif tag ~ "*" then
-						untagged_action (a_response)
+						untagged_action (parser)
 						check_for_mailbox_update (a_response)
 					elseif tag ~ "+" then
 							-- When the tag is "+", the server needs the continuation of the request
 						network.set_needs_continuation (true)
-					elseif tag.is_empty then
-						empty_action (a_response)
-					else
+					elseif parser.is_tagged_response  then
 						tagged_action (a_response, parser, tag)
+					else
+						debugger.debug_print (debugger.debug_warning, debugger.Could_not_parse_response)
 					end
 				end
 			else
@@ -128,11 +139,15 @@ feature {NONE} -- Implementation
 			debugger.debug_print (debugger.Debug_warning, "BYE answer received. We are now disconnected")
 		end
 
-	untagged_action (a_response: STRING)
+	untagged_action (a_parser: IL_PARSER)
 			-- When the response is an untagged response
+		require
+			a_parser_not_void: a_parser /= Void
 		local
 			server_response: detachable IL_SERVER_RESPONSE
+			a_response: STRING
 		do
+			a_response := a_parser.text
 				-- We create a temporary entry in the `responses_table' to store the new IL_SERVER_RESPONSE
 			if responses_table.has (Next_response_tag) then
 				server_response := responses_table.at (Next_response_tag)
@@ -143,7 +158,16 @@ feature {NONE} -- Implementation
 				create server_response.make_empty
 				responses_table.put (server_response, Next_response_tag)
 			end
-			server_response.add_untagged_response (a_response)
+			server_response.add_untagged_response (a_parser.text)
+		end
+
+	add_literal_action (a_response: STRING; server_response: IL_SERVER_RESPONSE)
+			-- When the response is the continuation of the previous one
+		require
+			a_response_not_empty: a_response /= Void and then not a_response.is_empty
+			server_response_needs_literal: server_response /= Void and then server_response.literal_left > 0
+		do
+			server_response.add_literal (a_response)
 		end
 
 	empty_action (a_response: STRING)

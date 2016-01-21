@@ -37,6 +37,13 @@ feature -- Access
 
 feature -- Basic operations
 
+	is_tagged_response: BOOLEAN
+			-- Returns true iff the text matches a tagged response
+		do
+			regex.compile (Tagged_response_pattern)
+			Result := regex.matches (text)
+		end
+
 	matches_connection_ok: BOOLEAN
 			-- Returns true iff the text matches a successful imap connection response
 		do
@@ -176,13 +183,15 @@ feature {NONE} -- Constants
 
 	Connection_ok_pattern: STRING = "^\* OK (.*)$"
 
-	Bye_pattern: STRING = "^\* BYE (.*)$"
+	Bye_pattern: STRING = "^\* BYE (.*)%R%N$"
 
 	Capability_pattern: STRING = "(([A-Z]|=|rev|\d|\+|-)+)"
 
-	Capabilities_pattern: STRING = "^\* ([A-Z]|=|rev|\d|\+|-| )*IMAP4rev1([A-Z]|=|rev|\d|\+|-| )*$"
+	Capabilities_pattern: STRING = "^\* ([A-Z]|=|rev|\d|\+|-| )*IMAP4rev1([A-Z]|=|rev|\d|\+|-| )*%R%N$"
 
-	Untagged_response_pattern: STRING = "^\* (.*)$"
+	Untagged_response_pattern: STRING = "^\* (.*)%R%N$"
+
+	Tagged_response_pattern: STRING = "^il\d+ .*%R%N$"
 
 	Tag_pattern: STRING = "^(\*|il\d+|\+) "
 
@@ -190,17 +199,17 @@ feature {NONE} -- Constants
 
 	Status_pattern: STRING = "^il\d+ (OK|NO|BAD)"
 
-	Status_data_response_pattern: STRING = "^\* STATUS .* \((.+)\)$"
+	Status_data_response_pattern: STRING = "^\* STATUS .* \((.+)\)%R%N$"
 
 	Status_data_pattern: STRING = "(MESSAGES|RECENT|UIDNEXT|UIDVALIDITY|UNSEEN) ([0-9]+) ?"
 
-	Search_result_pattern: STRING = "^\* SEARCH ([0-9 ]+)$"
+	Search_result_pattern: STRING = "^\* SEARCH ([0-9 ]+)%R%N$"
 
 	Integer_pattern: STRING = "\d+"
 
-	Response_code_pattern: STRING = "^il\d+ (OK|NO|BAD) \[([A-Z]+)].*$"
+	Response_code_pattern: STRING = "^il\d+ (OK|NO|BAD) \[([A-Z]+)].*%R%N$"
 
-	Information_message_pattern: STRING = "^il\d+ (OK|NO|BAD) (\[.+] )?(.*)$"
+	Information_message_pattern: STRING = "^il\d+ (OK|NO|BAD) (\[.+] )?(.*)%R%N$"
 
 
 feature {NONE} -- Constants

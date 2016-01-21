@@ -39,7 +39,7 @@ feature -- Basic operation
 				print (imap.get_last_response.information_message)
 				io.put_new_line
 				io.put_new_line
-				
+
 				get_mailboxes_info (imap.get_list ("", "*"))
 
 			else

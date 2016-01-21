@@ -21,10 +21,10 @@ feature -- Basic operation
 			create Result.default_create
 			regex.compile (From_pattern)
 			if regex.matches (text) then
-				Result.item (Result.lower) := regex.captured_substring (2)
-				Result.item (Result.upper) := regex.captured_substring (3)
+				Result.item (Result.lower) := regex.captured_substring (3)
+				Result.item (Result.upper) := regex.captured_substring (4)
 			else
-				Result.item (Result.lower) := ""
+				Result.item (Result.lower) := field ("From")
 				Result.item (Result.upper) := ""
 			end
 		end
@@ -35,10 +35,10 @@ feature -- Basic operation
 			create Result.default_create
 			regex.compile (To_pattern)
 			if regex.matches (text) then
-				Result.item (Result.lower) := regex.captured_substring (2)
-				Result.item (Result.upper) := regex.captured_substring (3)
+				Result.item (Result.lower) := regex.captured_substring (3)
+				Result.item (Result.upper) := regex.captured_substring (4)
 			else
-				Result.item (Result.lower) := ""
+				Result.item (Result.lower) := field ("To")
 				Result.item (Result.upper) := ""
 			end
 		end
@@ -65,13 +65,39 @@ feature -- Basic operation
 			end
 		end
 
+	field (a_field_name: STRING): STRING
+			-- Return the data for the field `a_field_name'
+			-- It is recommended that `a_field_name' starts with an upper case char
+		require
+			a_field_name_not_empty: a_field_name /= Void and then not a_field_name.is_empty
+		do
+			create Result.make_empty
+			regex.compile (a_field_name + Field_pattern)
+			if regex.matches (text) then
+				Result := regex.captured_substring (1)
+			else
+				a_field_name.to_upper
+				regex.compile (a_field_name + Field_pattern)
+				if regex.matches (text) then
+					Result := regex.captured_substring (1)
+				end
+				a_field_name.to_lower
+				regex.compile (a_field_name + Field_pattern)
+				if regex.matches (text) then
+					Result := regex.captured_substring (1)
+				end
+			end
+		end
+
 
 feature {NONE} -- Constants
 
-	From_pattern: STRING = "(from|From): (.*) <(.+@.+\..+)>"
-	To_pattern: STRING = "(to|To): (.*)? ?<(.+@.+\..+)>"
-	Subject_pattern: STRING = "(subject|Subject): (((?!%R).)*)"
+	From_pattern: STRING = "(from|From): (%"?)(.*)\2\ <(.+@.+\..+)>"
+	To_pattern: STRING = "(to|To): (%"?)(.*)\2\ ?<(.+@.+\..+)>"
+	Subject_pattern: STRING = "(subject|Subject): (.*)%R%N"
 	Date_pattern: STRING = "(date|Date): [A-Za-z]+, (\d?\d) ([A-Z][a-z][a-z]) (\d\d\d\d) (\d?\d):(\d\d):(\d\d) \+\d+"
+
+	Field_pattern: STRING = ": (.*)%R%N"
 
 feature {NONE} -- Implementation
 

@@ -77,7 +77,7 @@ feature {NONE} -- Constants
 
 	List_item_pattern: STRING
 		once
-			Result := "^\* " + Command + " \((.*)\) %"(.*)%" (.+)$"
+			Result := "^\* " + Command + " \((.*)\) %"(.*)%" (.+)%R%N$"
 		end
 
 	Raw_attributes_pattern: STRING = "(\\.+)"

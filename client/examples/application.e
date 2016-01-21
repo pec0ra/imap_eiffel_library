@@ -20,7 +20,7 @@ feature {NONE} -- Initialization
 
 			get_mailboxes_info_example
 
-			get_second_message_info
+			get_last_message_info
 
 			check_messages_example
 		end
@@ -41,8 +41,8 @@ feature -- Basic operation
 			example.run_example
 		end
 
-	get_second_message_info
-			-- Connect to a server, do a login, select INBOX and print info from the second message
+	get_last_message_info
+			-- Connect to a server, do a login, select INBOX and print info from the last message
 		do
 			create {LAST_MESSAGE_INFO_EXAMPLE}example.make
 			example.run_example

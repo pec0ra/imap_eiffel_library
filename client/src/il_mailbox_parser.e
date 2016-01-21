@@ -52,7 +52,7 @@ feature -- Basic Operations
 			matched: BOOLEAN
 		do
 			current_mailbox.set_selected (name)
-			regex.compile (Tagged_response_pattern)
+			regex.compile (Tagged_mailbox_response_pattern)
 			regex.match (text)
 			if regex.captured_substring (1) ~ "READ-ONLY" then
 				current_mailbox.set_read_only (true)
@@ -156,27 +156,27 @@ feature -- Basic Operations
 
 feature {NONE} -- Constants
 
-	Tagged_response_pattern: STRING = "^il\d+ OK \[(READ-ONLY|READ-WRITE)].*$"
+	Tagged_mailbox_response_pattern: STRING = "^il\d+ OK \[(READ-ONLY|READ-WRITE)].*%R%N$"
 
-	Flag_response_pattern: STRING = "^\* FLAGS \((.+)\)$"
+	Flag_response_pattern: STRING = "^\* FLAGS \((.+)\)%R%N$"
 
 	Flag_pattern: STRING = "([^ ]+)"
 
-	Exists_pattern: STRING = "^\* ([0-9]+) EXISTS$"
+	Exists_pattern: STRING = "^\* ([0-9]+) EXISTS%R%N$"
 
-	Recent_pattern: STRING = "^\* ([0-9]+) RECENT$"
+	Recent_pattern: STRING = "^\* ([0-9]+) RECENT%R%N$"
 
-	Expunge_pattern: STRING = "^\* ([0-9]+) EXPUNGE$"
+	Expunge_pattern: STRING = "^\* ([0-9]+) EXPUNGE%R%N$"
 
-	Unseen_pattern: STRING = "^\* OK \[UNSEEN ([0-9]+)].*$"
+	Unseen_pattern: STRING = "^\* OK \[UNSEEN ([0-9]+)].*%R%N$"
 
-	Permanent_flags_pattern: STRING = "^\* OK \[PERMANENTFLAGS \((.+)\)].*$"
+	Permanent_flags_pattern: STRING = "^\* OK \[PERMANENTFLAGS \((.+)\)].*%R%N$"
 
-	Uid_next_pattern: STRING = "^\* OK \[UIDNEXT ([0-9]+)].*$"
+	Uid_next_pattern: STRING = "^\* OK \[UIDNEXT ([0-9]+)].*%R%N$"
 
-	Uid_validity_pattern: STRING = "^\* OK \[UIDVALIDITY ([0-9]+)].*$"
+	Uid_validity_pattern: STRING = "^\* OK \[UIDVALIDITY ([0-9]+)].*%R%N$"
 
-	Fetch_pattern: STRING = "^\* ([0-9]+) FETCH \(FLAGS \((.+)\)\)$"
+	Fetch_pattern: STRING = "^\* ([0-9]+) FETCH \(FLAGS \((.+)\)\)%R%N$"
 
 feature {NONE} -- Implementation
 

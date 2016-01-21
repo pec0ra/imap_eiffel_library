@@ -66,6 +66,8 @@ feature -- Constants
 
 	Server_response_not_ok: STRING = "The server response was not an ok response"
 
+	Could_not_parse_response: STRING = "The response manager could not parse the server response"
+
 feature {NONE} -- Implementation
 
 	debug_mode: NATURAL

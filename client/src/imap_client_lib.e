@@ -697,14 +697,12 @@ feature -- Selected commands
 		local
 			tag: STRING
 			response: IL_SERVER_RESPONSE
-			parser: IL_FETCH_PARSER
 		do
 			tag := get_tag
 			send_store (tag, a_sequence_set, data_item_name, data_item_values, false)
 			response := get_response (tag)
-			if not response.is_error and then response.status ~ Command_ok_label and then response.untagged_response_count >= 1 then
-				create parser.make_from_response (response)
-				Result := parser.get_data
+			if not response.is_error and then response.status ~ Command_ok_label then
+				Result := response.fetch_responses
 			else
 				create Result.make (0)
 			end
@@ -736,14 +734,12 @@ feature -- Selected commands
 		local
 			tag: STRING
 			response: IL_SERVER_RESPONSE
-			parser: IL_FETCH_PARSER
 		do
 			tag := get_tag
 			send_store (tag, a_sequence_set, data_item_name, data_item_values, true)
 			response := get_response (tag)
-			if not response.is_error and then response.status ~ Command_ok_label and then response.untagged_response_count >= 1 then
-				create parser.make_from_response (response)
-				Result := parser.get_data
+			if not response.is_error and then response.status ~ Command_ok_label then
+				Result := response.fetch_responses
 			else
 				create Result.make (0)
 			end
@@ -908,7 +904,6 @@ feature {NONE} -- Implementation
 			args: LINKED_LIST [STRING]
 			tag: STRING
 			response: IL_SERVER_RESPONSE
-			parser: IL_FETCH_PARSER
 		do
 			create args.make
 			args.extend (a_sequence_set.string)
@@ -921,9 +916,8 @@ feature {NONE} -- Implementation
 			end
 
 			response := get_response (tag)
-			if response.status ~ Command_ok_label and then response.untagged_response_count >= 1 then
-				create parser.make_from_response (response)
-				Result := parser.get_data
+			if response.status ~ Command_ok_label then
+				Result := response.fetch_responses
 			else
 				create Result.make (0)
 			end

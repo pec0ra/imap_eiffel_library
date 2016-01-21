@@ -50,7 +50,7 @@ feature -- Basic Operations
 
 feature {NONE} -- Constants
 
-	Expunge_pattern: STRING = "^\* ([0-9]+) EXPUNGE$"
+	Expunge_pattern: STRING = "^\* ([0-9]+) EXPUNGE%R%N$"
 
 feature {NONE} -- Implementation
 

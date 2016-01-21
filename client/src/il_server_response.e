@@ -22,10 +22,13 @@ feature {NONE} -- Initialization
 		do
 			tagged_text := a_text
 			create {LINKED_LIST [STRING]}untagged_responses.make
+			create fetch_responses.make (0)
 			status := Command_no_label
 			is_error := false
 			create response_code.make_empty
 			create information_message.make_empty
+			create current_fetch.make_with_uid (0)
+			last_fetch_complete := true
 		ensure
 			tagged_text_set: tagged_text = a_text
 		end
@@ -37,10 +40,13 @@ feature {NONE} -- Initialization
 		do
 			tagged_text := ""
 			create {LINKED_LIST [STRING]}untagged_responses.make
+			create fetch_responses.make (0)
 			status := Command_no_label
 			is_error := false
 			create response_code.make_empty
 			create information_message.make_empty
+			create current_fetch.make_with_uid (0)
+			last_fetch_complete := true
 		end
 
 	make_error
@@ -49,10 +55,13 @@ feature {NONE} -- Initialization
 		do
 			tagged_text := ""
 			create {LINKED_LIST [STRING]}untagged_responses.make
+			create fetch_responses.make (0)
 			status := Command_no_label
 			is_error := true
 			create response_code.make_empty
 			create information_message.make_empty
+			create current_fetch.make_with_uid (0)
+			last_fetch_complete := true
 		end
 
 feature -- Access
@@ -72,17 +81,38 @@ feature -- Access
 	untagged_responses: LIST [STRING]
 			-- A list of the untagged responses before the closing tagged response
 
+	fetch_responses: HASH_TABLE [IL_FETCH, NATURAL]
+			-- A table of the untagged FETCH responses before the closing tagged response
+
 	is_error: BOOLEAN
 			-- Set to true if the response could not be received from the server
+
+	last_fetch_complete: BOOLEAN
+			-- True iff there is no current fetch being built
+
+	current_fetch: IL_FETCH
+			-- The fetch currently being completed
 
 feature -- Basic operations
 
 	add_untagged_response (a_text: STRING)
-			-- add an untagged response `a_text' to `untagged_response'
+			-- add an untagged response `a_text' to `untagged_response' or create a new fetch
 		require
 			a_text_not_empty: a_text /= Void and then not a_text.is_empty
+		local
+			parser: IL_FETCH_PARSER
 		do
-			untagged_responses.extend (a_text)
+			create parser.make_from_text (a_text)
+			if parser.is_fetch_response then
+				create current_fetch.make_with_uid (parser.uid)
+				last_fetch_complete := false
+				if parser.parse_data (current_fetch) then
+					fetch_responses.put (current_fetch, current_fetch.uid)
+					last_fetch_complete := true
+				end
+			else
+				untagged_responses.extend (parser.text)
+			end
 		end
 
 	set_tagged_text (a_text: STRING)
@@ -135,6 +165,37 @@ feature -- Basic operations
 			information_message := a_information_message
 		end
 
-feature -- Constants
+	add_literal (a_literal: STRING)
+			-- Add `a_literal' to complete the last received fetch response
+		require
+			a_literal_not_void: a_literal /= Void
+			needs_literal: literal_left > 0
+			a_literal_not_too_long: a_literal.count <= literal_left
+		do
+			current_fetch.add_literal (a_literal)
+		ensure
+			literal_added: literal_left = old literal_left - a_literal.count
+		end
+
+	add_text_to_fetch (a_text: STRING)
+			-- Add info from `a_text' to `current_fetch'
+		require
+			last_fetch_not_complete: not last_fetch_complete
+			a_text_not_empty: a_text /= Void and then not a_text.is_empty
+		local
+			parser: IL_FETCH_PARSER
+		do
+			create parser.make_from_text (a_text)
+			if parser.parse_data (current_fetch) then
+				fetch_responses.put (current_fetch, current_fetch.uid)
+				last_fetch_complete := true
+			end
+		end
+
+	literal_left: INTEGER
+			-- The number of chars that the current fetch parsing needs
+		do
+			Result := current_fetch.literal_left
+		end
 
 end
