@@ -232,4 +232,7 @@ feature {NONE} -- Implementation
 			end
 		end
 
+note
+	copyright: "2015-2016, Maret Basile, Eiffel Software"
+	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end

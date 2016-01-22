@@ -970,4 +970,7 @@ feature {NONE} -- Implementation
 invariant
 	mailbox_selected_in_selected_state: (network.state = network.Selected_state) = current_mailbox.is_selected
 
+note
+	copyright: "2015-2016, Maret Basile, Eiffel Software"
+	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end

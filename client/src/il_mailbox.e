@@ -190,4 +190,7 @@ feature {NONE} -- Implementation
 invariant
 	unselected_has_empty_name: is_selected = not name.is_empty
 
+note
+	copyright: "2015-2016, Maret Basile, Eiffel Software"
+	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end

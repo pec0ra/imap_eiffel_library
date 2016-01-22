@@ -74,4 +74,7 @@ feature {NONE} -- Implementation
 
 	Debug_tag: STRING = "%TDEBUG: "
 
+note
+	copyright: "2015-2016, Maret Basile, Eiffel Software"
+	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end

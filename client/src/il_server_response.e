@@ -204,4 +204,7 @@ feature -- Basic operations
 			Result := current_fetch.literal_left
 		end
 
+note
+	copyright: "2015-2016, Maret Basile, Eiffel Software"
+	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
