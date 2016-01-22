@@ -59,7 +59,7 @@ feature -- Basic operation
 		do
 			regex.compile (Date_pattern)
 			if regex.matches (text) then
-				create Result.make (regex.captured_substring (4).to_integer, months.at (regex.captured_substring (3)), regex.captured_substring (2).to_integer, regex.captured_substring (5).to_integer, regex.captured_substring (6).to_integer, regex.captured_substring (7).to_integer)
+				create Result.make (regex.captured_substring (3).to_integer, months.at (regex.captured_substring (2)), regex.captured_substring (1).to_integer, regex.captured_substring (4).to_integer, regex.captured_substring (5).to_integer, regex.captured_substring (6).to_integer)
 			else
 				create Result.make (1970, 1, 1, 0, 0, 0)
 			end
@@ -95,29 +95,8 @@ feature {NONE} -- Constants
 	From_pattern: STRING = "(from|From): (%"?)(.*)\2\ <(.+@.+\..+)>"
 	To_pattern: STRING = "(to|To): (%"?)(.*)\2\ ?<(.+@.+\..+)>"
 	Subject_pattern: STRING = "(subject|Subject): (.*)%R%N"
-	Date_pattern: STRING = "(date|Date): [A-Za-z]+, (\d?\d) ([A-Z][a-z][a-z]) (\d\d\d\d) (\d?\d):(\d\d):(\d\d) \+\d+"
 
 	Field_pattern: STRING = ": (.*)%R%N"
-
-feature {NONE} -- Implementation
-
-	months: STRING_TABLE[INTEGER]
-			-- maps the months abreviation to their number
-		once
-			create Result.make (12)
-			Result.put (1, "Jan")
-			Result.put (2, "Feb")
-			Result.put (3, "Mar")
-			Result.put (4, "Apr")
-			Result.put (5, "May")
-			Result.put (6, "Jun")
-			Result.put (7, "Jul")
-			Result.put (8, "Aug")
-			Result.put (9, "Sep")
-			Result.put (10, "Oct")
-			Result.put (11, "Nov")
-			Result.put (12, "Dec")
-		end
 
 note
 	copyright: "2015-2016, Maret Basile, Eiffel Software"

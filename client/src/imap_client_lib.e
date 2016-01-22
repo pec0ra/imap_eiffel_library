@@ -523,7 +523,7 @@ feature -- Selected commands
 
 	fetch (a_sequence_set: IL_SEQUENCE_SET; data_items: LIST [STRING]): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set `a_sequence_set' for data items `data_items'
-			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+			-- Returns a hash table maping the sequence number of the message to an il_fetch data structure
 		note
 			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
 		require
@@ -535,7 +535,7 @@ feature -- Selected commands
 
 	fetch_all (a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set `a_sequence_set' for macro ALL
-			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+			-- Returns a hash table maping the sequence number of the message to an il_fetch data structure
 		note
 			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
 		require
@@ -546,7 +546,7 @@ feature -- Selected commands
 
 	fetch_fast (a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set `a_sequence_set' for macro FAST
-			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+			-- Returns a hash table maping the sequence number of the message to an il_fetch data structure
 		note
 			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
 		require
@@ -557,7 +557,7 @@ feature -- Selected commands
 
 	fetch_full (a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set `a_sequence_set' for macro FULL
-			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+			-- Returns a hash table maping the sequence number of the message to an il_fetch data structure
 		note
 			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
 		require
@@ -568,19 +568,29 @@ feature -- Selected commands
 
 	fetch_string (a_sequence_set: IL_SEQUENCE_SET; data_items: STRING): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set `a_sequence_set' for data items `data_items'
-			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+			-- Returns a hash table maping the sequence number of the message to an il_fetch data structure
 		note
 			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
 		require
 			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_not_empty: data_items /= Void and then not data_items.is_empty
 		do
-			Result := send_fetch (a_sequence_set, data_items, false)
+			Result := fetch_implementation (a_sequence_set, data_items, false)
+		end
+
+	fetch_messages (a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE [IL_MESSAGE, NATURAL]
+			-- Send a fetch command with sequence set `a_sequence_set' and return the data as a hash table maping the uid of the message to the message
+		note
+			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
+		require
+			a_sequence_set_not_void: a_sequence_set /= Void
+		do
+			Result := fetch_message_implementation (a_sequence_set, false)
 		end
 
 	fetch_uid (a_sequence_set: IL_SEQUENCE_SET; data_items: LIST [STRING]): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set of uids `a_sequence_set' for data items `data_items'
-			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+			-- Returns a hash table maping the sequence number of the message to an il_fetch data structure
 		note
 			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
 			EIS: "name=UID", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.8"
@@ -593,7 +603,7 @@ feature -- Selected commands
 
 	fetch_all_uid (a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set of uids `a_sequence_set' for macro ALL
-			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+			-- Returns a hash table maping the sequence number of the message to an il_fetch data structure
 		note
 			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
 			EIS: "name=UID", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.8"
@@ -605,7 +615,7 @@ feature -- Selected commands
 
 	fetch_fast_uid (a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set of uids `a_sequence_set' for macro FAST
-			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+			-- Returns a hash table maping the sequence number of the message to an il_fetch data structure
 		note
 			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
 			EIS: "name=UID", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.8"
@@ -617,7 +627,7 @@ feature -- Selected commands
 
 	fetch_full_uid (a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set of uids `a_sequence_set' for macro FULL
-			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+			-- Returns a hash table maping the sequence number of the message to an il_fetch data structure
 		note
 			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
 			EIS: "name=UID", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.8"
@@ -629,7 +639,7 @@ feature -- Selected commands
 
 	fetch_string_uid (a_sequence_set: IL_SEQUENCE_SET; data_items: STRING): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set of uids `a_sequence_set' for data items `data_items'
-			-- Returns a hash table maping the uid of the message to an il_fetch data structure
+			-- Returns a hash table maping the sequence number of the message to an il_fetch data structure
 		note
 			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
 			EIS: "name=UID", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.8"
@@ -637,7 +647,17 @@ feature -- Selected commands
 			a_sequence_set_not_void: a_sequence_set /= Void
 			data_item_not_empty: data_items /= Void and then not data_items.is_empty
 		do
-			Result := send_fetch (a_sequence_set, data_items, true)
+			Result := fetch_implementation (a_sequence_set, data_items, true)
+		end
+
+	fetch_messages_uid (a_sequence_set: IL_SEQUENCE_SET): HASH_TABLE [IL_MESSAGE, NATURAL]
+			-- Send a fetch command with sequence set of uids `a_sequence_set' and return the data as a hash table maping the uid of the message to the message
+		note
+			EIS: "name=FETCH", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.4.5"
+		require
+			a_sequence_set_not_void: a_sequence_set /= Void
+		do
+			Result := fetch_message_implementation (a_sequence_set, true)
 		end
 
 	copy_messages (a_sequence_set: IL_SEQUENCE_SET; a_mailbox_name: STRING)
@@ -682,7 +702,7 @@ feature -- Selected commands
 			data_item_name_not_empty: data_item_name /= Void and then not data_item_name.is_empty
 			data_item_value_not_void: data_item_values /= Void
 		do
-			send_store (get_tag, a_sequence_set, data_item_name, data_item_values, false)
+			store_implementation (get_tag, a_sequence_set, data_item_name, data_item_values, false)
 		end
 
 	get_store (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST [STRING]): HASH_TABLE [IL_FETCH, NATURAL]
@@ -699,7 +719,7 @@ feature -- Selected commands
 			response: IL_SERVER_RESPONSE
 		do
 			tag := get_tag
-			send_store (tag, a_sequence_set, data_item_name, data_item_values, false)
+			store_implementation (tag, a_sequence_set, data_item_name, data_item_values, false)
 			response := get_response (tag)
 			if not response.is_error and then response.status ~ Command_ok_label then
 				Result := response.fetch_responses
@@ -718,7 +738,7 @@ feature -- Selected commands
 			data_item_name_not_empty: data_item_name /= Void and then not data_item_name.is_empty
 			data_item_value_not_void: data_item_values /= Void
 		do
-			send_store (get_tag, a_sequence_set, data_item_name, data_item_values, true)
+			store_implementation (get_tag, a_sequence_set, data_item_name, data_item_values, true)
 		end
 
 	get_store_uid (a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST [STRING]): HASH_TABLE [IL_FETCH, NATURAL]
@@ -736,7 +756,7 @@ feature -- Selected commands
 			response: IL_SERVER_RESPONSE
 		do
 			tag := get_tag
-			send_store (tag, a_sequence_set, data_item_name, data_item_values, true)
+			store_implementation (tag, a_sequence_set, data_item_name, data_item_values, true)
 			response := get_response (tag)
 			if not response.is_error and then response.status ~ Command_ok_label then
 				Result := response.fetch_responses
@@ -893,7 +913,7 @@ feature {NONE} -- Implementation
 			current_tag_number_increased: current_tag_number > old current_tag_number
 		end
 
-	send_fetch (a_sequence_set: IL_SEQUENCE_SET; data_items: STRING; is_uid: BOOLEAN): HASH_TABLE [IL_FETCH, NATURAL]
+	fetch_implementation (a_sequence_set: IL_SEQUENCE_SET; data_items: STRING; is_uid: BOOLEAN): HASH_TABLE [IL_FETCH, NATURAL]
 			-- Send a fetch command with sequence set `a_sequence_set' for data items `data_items'
 			-- The sequence set will represent uids iff `is_uid' is set to true
 			-- Returns a hash table maping the uid of the message to an il_fetch data structure
@@ -923,7 +943,37 @@ feature {NONE} -- Implementation
 			end
 		end
 
-	send_store (a_tag: STRING; a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST [STRING]; is_uid: BOOLEAN)
+	fetch_message_implementation (a_sequence_set: IL_SEQUENCE_SET; is_uid: BOOLEAN): HASH_TABLE [IL_MESSAGE, NATURAL]
+			-- Send a fetch command with sequence set `a_sequence_set'
+			-- The sequence set will represent uids iff `is_uid' is set to true
+			-- Returns the data as a hash table maping the uid of the message to the message
+		require
+			a_sequence_set_not_void: a_sequence_set /= Void
+		local
+			fetch_return: HASH_TABLE [IL_FETCH, NATURAL]
+			data_items: LINKED_LIST [STRING]
+		do
+			create data_items.make
+			data_items.extend (body_data_item)
+			data_items.extend (envelope_data_item)
+			data_items.extend (flags_data_item)
+			data_items.extend (internaldate_data_item)
+			data_items.extend (header_data_item)
+			data_items.extend (size_data_item)
+			data_items.extend (text_data_item)
+			data_items.extend (uid_data_item)
+			fetch_return := fetch_implementation (a_sequence_set, string_from_list (data_items), is_uid)
+
+			create Result.make (fetch_return.count)
+			across
+				fetch_return as f
+			loop
+				Result.put (create {IL_MESSAGE}.make_from_fetch (f.item), f.key)
+			end
+
+		end
+
+	store_implementation (a_tag: STRING; a_sequence_set: IL_SEQUENCE_SET; data_item_name: STRING; data_item_values: LIST [STRING]; is_uid: BOOLEAN)
 			-- send STORE command for arguments `a_sequence_set'. Change the messages according to `data_item_name' with arguments `data_item_values'
 			-- `a_sequence_set' represents uid iff `is_uid' is set to true
 		require

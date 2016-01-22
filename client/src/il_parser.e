@@ -211,6 +211,8 @@ feature {NONE} -- Constants
 
 	Information_message_pattern: STRING = "^il\d+ (OK|NO|BAD) (\[.+] )?(.*)%R%N$"
 
+	Date_pattern: STRING = ".*[A-Za-z]+, (\d?\d) ([A-Z][a-z][a-z]) (\d\d\d\d) (\d?\d):(\d\d):(\d\d) \+\d+"
+
 
 feature {NONE} -- Constants
 
@@ -219,6 +221,26 @@ feature {NONE} -- Constants
 	Command_result_position: INTEGER = 2
 
 	Untagged_label: String = "*"
+
+feature {NONE} -- Implementation
+
+	months: STRING_TABLE[INTEGER]
+			-- maps the months abreviation to their number
+		once
+			create Result.make (12)
+			Result.put (1, "Jan")
+			Result.put (2, "Feb")
+			Result.put (3, "Mar")
+			Result.put (4, "Apr")
+			Result.put (5, "May")
+			Result.put (6, "Jun")
+			Result.put (7, "Jul")
+			Result.put (8, "Aug")
+			Result.put (9, "Sep")
+			Result.put (10, "Oct")
+			Result.put (11, "Nov")
+			Result.put (12, "Dec")
+		end
 
 note
 	copyright: "2015-2016, Maret Basile, Eiffel Software"

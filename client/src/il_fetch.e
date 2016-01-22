@@ -40,6 +40,28 @@ feature -- Access
 	literal_left: INTEGER
 			-- The remaining chars that the last item still needs
 
+	get_size (a_item_name: STRING): INTEGER
+			-- Return the size of item `a_item_name' or -1 if not found
+		require
+			a_item_name_not_empty: a_item_name /= Void and then not a_item_name.is_empty
+		do
+			Result := -1
+			if attached {TUPLE [INTEGER, STRING]} data.at (a_item_name) as tuple and then attached {INTEGER} tuple.at (1) as size then
+				Result := size
+			end
+		end
+
+	get_value (a_item_name: STRING): STRING
+			-- Return the value of item `a_item_name' or empty string if not found
+		require
+			a_item_name_not_empty: a_item_name /= Void and then not a_item_name.is_empty
+		do
+			create result.make_empty
+			if attached {TUPLE [INTEGER, STRING]} data.at (a_item_name) as tuple and then attached {STRING} tuple.at (2) as value then
+				Result := value
+			end
+		end
+
 
 feature -- Basic operation
 
