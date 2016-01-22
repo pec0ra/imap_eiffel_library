@@ -48,6 +48,8 @@ feature -- Basic operation
 				print (imap.get_last_response.information_message)
 				io.put_new_line
 			end
+
+			imap.logout
 		end
 
 		get_mailboxes_info (a_mailbox_list: LIST[IL_NAME])

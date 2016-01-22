@@ -18,7 +18,11 @@ feature -- Basic operation
 
 	run_example
 			-- Run the example
+		require
+			imap.is_connected
 		deferred
+		ensure
+			not imap.is_connected
 		end
 
 feature {NONE} -- Constants

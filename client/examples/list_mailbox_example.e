@@ -47,6 +47,8 @@ feature -- Basic operation
 				print (imap.get_last_response.information_message)
 				io.put_new_line
 			end
+
+			imap.logout
 		end
 
 		list_the_mailboxes
