@@ -110,11 +110,11 @@ feature -- Basic operations
 		do
 			create parser.make_from_text (a_text)
 			if parser.is_fetch_response then
+				debugger.debug_print (debugger.debug_info, "FETCH response starting")
 				create current_fetch.make_with_sequence_number (parser.sequence_number)
 				last_fetch_complete := false
 				if parser.parse_data (current_fetch) then
-					fetch_responses.put (current_fetch, current_fetch.sequence_number)
-					last_fetch_complete := true
+					set_fetch_complete
 				end
 			else
 				untagged_responses.extend (parser.text)
@@ -193,9 +193,16 @@ feature -- Basic operations
 		do
 			create parser.make_from_text (a_text)
 			if parser.parse_data (current_fetch) then
-				fetch_responses.put (current_fetch, current_fetch.sequence_number)
-				last_fetch_complete := true
+				set_fetch_complete
 			end
+		end
+
+	set_fetch_complete
+			-- Save the current fetch and set `last_fetch_complete' to true
+		do
+			fetch_responses.put (current_fetch, current_fetch.sequence_number)
+				last_fetch_complete := true
+				debugger.debug_print (debugger.debug_info, "FETCH response finished and saved")
 		end
 
 	literal_left: INTEGER

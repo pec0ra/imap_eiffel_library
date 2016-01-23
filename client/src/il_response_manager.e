@@ -106,7 +106,17 @@ feature {NONE} -- Implementation
 					add_literal_action (a_response, server_response)
 
 				elseif attached {IL_SERVER_RESPONSE} server_response and then not server_response.last_fetch_complete then
-					server_response.add_text_to_fetch (a_response)
+					create parser.make_from_text (a_response)
+					if parser.is_tagged_response then
+						server_response.set_fetch_complete
+						tagged_action (a_response, parser, parser.tag)
+					elseif parser.is_fetch_response then
+						server_response.set_fetch_complete
+						untagged_action (parser)
+						check_for_mailbox_update (a_response)
+					else
+						server_response.add_text_to_fetch (a_response)
+					end
 
 				-- This branch is for all other cases
 				else

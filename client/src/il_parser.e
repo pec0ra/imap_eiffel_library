@@ -179,6 +179,13 @@ feature -- Basic operations
 			end
 		end
 
+	is_fetch_response: BOOLEAN
+			-- Returns true iff the text matches an untagged fetch response
+		do
+			regex.compile (First_line_fetch_pattern)
+			Result := regex.matches (text)
+		end
+
 feature {NONE} -- Constants
 
 	Connection_ok_pattern: STRING = "^\* OK (.*)$"
@@ -211,7 +218,9 @@ feature {NONE} -- Constants
 
 	Information_message_pattern: STRING = "^il\d+ (OK|NO|BAD) (\[.+] )?(.*)%R%N$"
 
-	Date_pattern: STRING = ".*[A-Za-z]+, (\d?\d) ([A-Z][a-z][a-z]) (\d\d\d\d) (\d?\d):(\d\d):(\d\d) \+\d+"
+	Date_pattern: STRING = ".*[A-Za-z]+, (\d?\d) ([A-Z][a-z][a-z]) (\d\d\d\d) (\d?\d):(\d\d):(\d\d)"
+
+	First_line_fetch_pattern: STRING = "^\* (\d+) FETCH \([^{]*\)?({(\d+)})?%R%N$"
 
 
 feature {NONE} -- Constants

@@ -28,13 +28,6 @@ feature {NONE} -- Initialization
 
 feature -- Basic operations
 
-	is_fetch_response: BOOLEAN
-			-- Returns true iff the text matches an untagged fetch response
-		do
-			regex.compile (First_line_fetch_pattern)
-			Result := regex.matches (text)
-		end
-
 	sequence_number: NATURAL
 			-- Returns the sequence number fetched from `text' or returns 0 if `text' did not match
 		do
@@ -94,8 +87,6 @@ feature {NONE} -- Constants
 	Size_pattern: STRING = ".*(RFC822\.SIZE) (\d+)"
 
 	Uid_pattern: STRING = ".*(UID) (\d+)"
-
-	First_line_fetch_pattern: STRING = "^\* (\d+) FETCH \([^{]*\)?({(\d+)})?%R%N$"
 
 	Fetch_end_pattern: STRING = "^ ?\)%R%N$"
 

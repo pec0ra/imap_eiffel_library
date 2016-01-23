@@ -153,7 +153,7 @@ feature {NONE} -- Constants
 
 	Body_pattern: STRING = "(%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) \((((%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) ?)+)\) (%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) (\d+|NIL) ?(\d+|NIL)?"
 
-	Internaldate_pattern: STRING = "(\d?\d)-([A-Z][a-z][a-z])-(\d\d\d\d) (\d?\d):(\d\d):(\d\d) \+\d+"
+	Internaldate_pattern: STRING = "(\d?\d)-([A-Z][a-z][a-z])-(\d\d\d\d) (\d?\d):(\d\d):(\d\d)"
 			-- Only for INTERNALDATE. For the pattern to parse header's date, look at `Date_pattern'
 
 feature {NONE} -- Implementation
