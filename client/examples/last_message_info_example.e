@@ -68,57 +68,52 @@ feature -- Basic operation
 			require
 				imap.get_current_state = {IL_NETWORK_STATE}.selected_state
 			local
-				messages: HASH_TABLE [IL_FETCH, NATURAL]
-				data_items: LINKED_LIST [STRING]
-				parser: IL_HEADER_PARSER
-				tuple: detachable TUPLE
+				messages: HASH_TABLE [IL_MESSAGE, NATURAL]
+				message: IL_MESSAGE
 			do
-				create data_items.make
-				data_items.extend (From_field)
-				data_items.extend (Subject_field)
-				data_items.extend (Date_field)
-				data_items.extend (Body_text_field)
-				messages := imap.fetch (create {IL_SEQUENCE_SET}.make_last, data_items)
+				messages := imap.fetch_messages (create {IL_SEQUENCE_SET}.make_last)
 
 				across
-					messages as message
+					messages as fetch
 				loop
+					message := fetch.item
 					print ("Message with sequence number ")
-					print (message.key)
+					print (message.sequence_number)
+					print (" and uid ")
+					print (message.uid)
 					print (" :")
 					io.put_new_line
 
-					tuple := message.item.data.at (From_field)
-					if attached {TUPLE} tuple and then attached {STRING} tuple.at (2) as field then
-						create parser.make_from_text (field)
-						print ("From : ")
-						print (parser.from_field.at (1).out + " (" + parser.from_field.at (2).out + ")")
-						io.put_new_line
-					end
+					print ("From : ")
+					print (message.from_address.name + " (" + message.from_address.address + ")")
+					io.put_new_line
 
-					tuple := message.item.data.at (Date_field)
-					if attached {TUPLE} tuple and then attached {STRING} tuple.at (2) as field then
-						create parser.make_from_text (field)
-						print ("Date : ")
-						print (parser.date_field.out)
-						io.put_new_line
+					print ("To : ")
+					across
+						message.to_address as to_address
+					loop
+						print (to_address.item.name + " (" + to_address.item.address + ") ")
 					end
+					io.put_new_line
 
-					tuple := message.item.data.at (Subject_field)
-					if attached {TUPLE} tuple and then attached {STRING} tuple.at (2) as field then
-						create parser.make_from_text (field)
-						print ("Subject : ")
-						print (parser.subject_field)
-						io.put_new_line
-					end
+					print ("Date : ")
+					print (message.date.out)
+					io.put_new_line
 
-					tuple := message.item.data.at (Body_text_field)
-					if attached {TUPLE} tuple and then attached {STRING} tuple.at (2) as field then
-						print ("Body text (size " + message.item.data.at (Body_text_field).at (1).out + " B):")
-						io.put_new_line
-						print (field)
-						io.put_new_line
-					end
+					print ("Content type (retrieved from header) : ")
+					print (message.header_field ("Content-Type"))
+					io.put_new_line
+
+					print ("Subject : ")
+					print (message.subject)
+					io.put_new_line
+
+					print ("Body text (size " + message.size.out + " B):")
+					io.put_new_line
+					print (message.body_text)
+					io.put_new_line
+
+
 
 				end
 			end
