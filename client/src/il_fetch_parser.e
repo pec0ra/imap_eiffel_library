@@ -23,7 +23,7 @@ feature {NONE} -- Initialization
 			-- Create a parser which will parse `a_text'
 		do
 			Precursor (a_text)
-			create fetch.make_with_uid (0)
+			create fetch.make_with_sequence_number (0)
 		end
 
 feature -- Basic operations
@@ -35,8 +35,8 @@ feature -- Basic operations
 			Result := regex.matches (text)
 		end
 
-	uid: NATURAL
-			-- Returns the uid fetched from `text' or returns 0 if `text' did not match
+	sequence_number: NATURAL
+			-- Returns the sequence number fetched from `text' or returns 0 if `text' did not match
 		do
 			regex.compile (First_line_fetch_pattern)
 			if regex.matches (text) then

@@ -22,6 +22,7 @@ feature {NONE} -- Initialization
 			number_of_lines: STRING
 		do
 			create parser.make_from_fetch (a_fetch)
+			sequence_number := a_fetch.sequence_number
 			uid := a_fetch.get_value (uid_data_item).to_integer
 			body_text := a_fetch.get_value (text_data_item)
 			body_size := a_fetch.get_size (text_data_item)
@@ -64,6 +65,9 @@ feature -- Access
 
 	uid: INTEGER
 			-- The uid of the message
+
+	sequence_number: NATURAL
+			-- The sequence number of the message
 
 	header_text: STRING
 			-- The raw text of the header

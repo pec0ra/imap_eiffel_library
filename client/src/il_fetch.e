@@ -8,25 +8,25 @@ class
 	IL_FETCH
 
 create
-	make_with_uid
+	make_with_sequence_number
 
 feature {NONE} -- Initialization
 
-	make_with_uid (a_uid: NATURAL)
-			-- set `uid' to `a_uid'
+	make_with_sequence_number (a_sequence_number: NATURAL)
+			-- set `sequence_number' to `a_sequence_number'
 		do
-			uid := a_uid
+			sequence_number := a_sequence_number
 			create data.make (0)
 			create last_key.make_empty
 			create last_item.default_create
 		ensure
-			uid_set: uid = a_uid
+			sequence_number_set: sequence_number = a_sequence_number
 		end
 
 feature -- Access
 
-	uid: NATURAL
-			-- The unique id of the fetched message
+	sequence_number: NATURAL
+			-- The sequence number of the fetched message
 
 	data: STRING_TABLE [TUPLE [INTEGER, STRING]]
 			-- Matches data item names to their size and value

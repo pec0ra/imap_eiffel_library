@@ -27,7 +27,7 @@ feature {NONE} -- Initialization
 			is_error := false
 			create response_code.make_empty
 			create information_message.make_empty
-			create current_fetch.make_with_uid (0)
+			create current_fetch.make_with_sequence_number (0)
 			last_fetch_complete := true
 		ensure
 			tagged_text_set: tagged_text = a_text
@@ -45,7 +45,7 @@ feature {NONE} -- Initialization
 			is_error := false
 			create response_code.make_empty
 			create information_message.make_empty
-			create current_fetch.make_with_uid (0)
+			create current_fetch.make_with_sequence_number (0)
 			last_fetch_complete := true
 		end
 
@@ -60,7 +60,7 @@ feature {NONE} -- Initialization
 			is_error := true
 			create response_code.make_empty
 			create information_message.make_empty
-			create current_fetch.make_with_uid (0)
+			create current_fetch.make_with_sequence_number (0)
 			last_fetch_complete := true
 		end
 
@@ -110,10 +110,10 @@ feature -- Basic operations
 		do
 			create parser.make_from_text (a_text)
 			if parser.is_fetch_response then
-				create current_fetch.make_with_uid (parser.uid)
+				create current_fetch.make_with_sequence_number (parser.sequence_number)
 				last_fetch_complete := false
 				if parser.parse_data (current_fetch) then
-					fetch_responses.put (current_fetch, current_fetch.uid)
+					fetch_responses.put (current_fetch, current_fetch.sequence_number)
 					last_fetch_complete := true
 				end
 			else
@@ -193,7 +193,7 @@ feature -- Basic operations
 		do
 			create parser.make_from_text (a_text)
 			if parser.parse_data (current_fetch) then
-				fetch_responses.put (current_fetch, current_fetch.uid)
+				fetch_responses.put (current_fetch, current_fetch.sequence_number)
 				last_fetch_complete := true
 			end
 		end
