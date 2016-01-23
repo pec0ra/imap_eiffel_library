@@ -23,20 +23,23 @@ feature {NONE} -- Initialization
 		do
 			create parser.make_from_fetch (a_fetch)
 			uid := a_fetch.get_value (uid_data_item).to_integer
-			header_text := a_fetch.get_value (header_data_item)
 			body_text := a_fetch.get_value (text_data_item)
 			body_size := a_fetch.get_size (text_data_item)
 			size := a_fetch.get_value (size_data_item).to_integer
 			flags := a_fetch.get_value (flags_data_item).split (' ')
 
-			from_address := parser.get_from
-			reply_to := parser.get_addresses_from_envelope (5)
-			to_address := parser.get_addresses_from_envelope (6)
-			cc := parser.get_addresses_from_envelope (7)
-			bcc := parser.get_addresses_from_envelope (8)
+			header_text := a_fetch.get_value (header_data_item)
+			create header_parser.make_from_text (header_text)
 
+			from_address := parser.get_from
+			reply_to := parser.get_addresses_from_envelope (3)
+			to_address := parser.get_addresses_from_envelope (4)
+			cc := parser.get_addresses_from_envelope (5)
+			bcc := parser.get_addresses_from_envelope (6)
 			subject := parser.subject
 			date := parser.date
+			date_string := parser.date_string
+			internaldate := parser.internaldate
 
 			mailbox_name := current_mailbox.name
 
@@ -99,6 +102,12 @@ feature -- Access
 	date: DATE_TIME
 			-- The date of the message
 
+	date_string: STRING
+			-- The date of the message as stored in the envelope
+
+	internaldate: DATE_TIME
+			-- The internal date of the message
+
 	subject: STRING
 			-- The subject of the message
 
@@ -116,6 +125,22 @@ feature -- Access
 
 	reply_to: LIST [IL_ADDRESS]
 			-- The addresses of the reply to field
+
+feature -- Basic operation
+
+	header_field (a_field_name: STRING): STRING
+			-- Return the data for the field `a_field_name'
+			-- It is recommended that `a_field_name' starts with an upper case char
+		require
+			a_field_name_not_empty: a_field_name /= Void and then not a_field_name.is_empty
+		do
+			Result := header_parser.field (a_field_name)
+		end
+
+feature {NONE} -- Implementation
+
+	header_parser: IL_HEADER_PARSER
+			-- A parser for the header
 
 ;note
 	copyright: "2015-2016, Maret Basile, Eiffel Software"

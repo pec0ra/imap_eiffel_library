@@ -37,14 +37,10 @@ feature -- Basic operaion
 			envelope := fetch.get_value (envelope_data_item)
 			regex.compile (envelope_pattern)
 			if regex.matches (envelope) then
-				addresses := regex.captured_substring (3)
-				regex.compile (Addresses_pattern)
+				addresses := regex.captured_substring (6)
+				regex.compile (Address_pattern)
 				if regex.matches (addresses) then
-					addresses := regex.captured_substring (1)
-					regex.compile (Address_pattern)
-					if regex.matches (addresses) then
-						Result := address_from_matched_regex
-					end
+					Result := address_from_matched_regex
 				end
 			end
 		end
@@ -52,7 +48,7 @@ feature -- Basic operaion
 	get_addresses_from_envelope (a_position: INTEGER): LIST [IL_ADDRESS]
 			-- Return a list of addresses parsed from the `a_position'-th field of the envelope
 		require
-			correct_position: a_position >= 3 and then a_position <= 9
+			correct_position: a_position >= 1 and then a_position <= 6
 		local
 			envelope: STRING
 			addresses: STRING
@@ -62,22 +58,18 @@ feature -- Basic operaion
 			envelope := fetch.get_value (envelope_data_item)
 			regex.compile (envelope_pattern)
 			if regex.matches (envelope) then
-				addresses := regex.captured_substring (3)
-				regex.compile (Addresses_pattern)
-				if regex.matches (addresses) then
-					addresses := regex.captured_substring (1)
-					from
-						regex.compile (Address_pattern)
-						regex.match (addresses)
-					until
-						not regex.has_matched
-					loop
-						address := address_from_matched_regex
-						if not address.name.is_empty and not address.address.is_empty then
-							Result.extend (address)
-						end
-						regex.next_match
+				addresses := regex.captured_substring (6 + 3 * (a_position - 1))
+				from
+					regex.compile (Address_pattern)
+					regex.match (addresses)
+				until
+					not regex.has_matched
+				loop
+					address := address_from_matched_regex
+					if not address.address.is_empty then
+						Result.extend (address)
 					end
+					regex.next_match
 				end
 			end
 		end
@@ -91,32 +83,47 @@ feature -- Basic operaion
 			envelope := fetch.get_value (envelope_data_item)
 			regex.compile (envelope_pattern)
 			if regex.matches (envelope) then
-				if Result /~ "NIL" then
-					Result := regex.captured_substring (2)
-
-					-- Remove the quotes
-					Result.remove_head (1)
-					Result.remove_tail (1)
-				end
+				Result := regex.captured_substring (4)
 			end
 		end
 
 	date: DATE_TIME
 			-- Parse the date from the envelope
 		local
-			envelope: STRING
 			date_s: STRING
+		do
+			date_s := date_string
+			regex.compile (date_pattern)
+			if regex.matches (date_s) then
+				create Result.make (regex.captured_substring (3).to_integer, months.at (regex.captured_substring (2)), regex.captured_substring (1).to_integer, regex.captured_substring (4).to_integer, regex.captured_substring (5).to_integer, regex.captured_substring (6).to_integer)
+			else
+				create Result.make (1970, 1, 1, 0, 0, 0)
+			end
+		end
+
+	date_string: STRING
+			-- Parse the date from the envelope
+		local
+			envelope: STRING
 		do
 			envelope := fetch.get_value (envelope_data_item)
 			regex.compile (envelope_pattern)
 			if regex.matches (envelope) then
-				date_s := regex.captured_substring (1)
-				regex.compile (date_pattern)
-				if regex.matches (date_s) then
-					create Result.make (regex.captured_substring (3).to_integer, months.at (regex.captured_substring (2)), regex.captured_substring (1).to_integer, regex.captured_substring (4).to_integer, regex.captured_substring (5).to_integer, regex.captured_substring (6).to_integer)
-				else
-					create Result.make (1970, 1, 1, 0, 0, 0)
-				end
+				Result := regex.captured_substring (2)
+			else
+				create Result.make_empty
+			end
+		end
+
+	internaldate: DATE_TIME
+			-- Parse the internaldate
+		local
+			date_s: STRING
+		do
+			date_s := fetch.get_value (internaldate_data_item)
+			regex.compile (Internaldate_pattern)
+			if regex.matches (date_s) then
+				create Result.make (regex.captured_substring (3).to_integer, months.at (regex.captured_substring (2)), regex.captured_substring (1).to_integer, regex.captured_substring (4).to_integer, regex.captured_substring (5).to_integer, regex.captured_substring (6).to_integer)
 			else
 				create Result.make (1970, 1, 1, 0, 0, 0)
 			end
@@ -140,13 +147,14 @@ feature -- Basic operaion
 
 feature {NONE} -- Constants
 
-	Envelope_pattern: STRING = "^(%"[^%"]*%"|NIL) (%"[^%"]*%"|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\))+\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\))+\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\))+\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\))+\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\))+\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\))+\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\))+\)|NIL) (%"[^%"]*%"|NIL)$"
-
-	Addresses_pattern: STRING = "^\(((\((%"[^%"]*%" ?|NIL ?)+\))+)\)$"
+	Envelope_pattern: STRING = "^(%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\)+)\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\)+)\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\)+)\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\)+)\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\)+)\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\)+)\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\)+)\)|NIL) (%"[^%"]*%"|NIL)$"
 
 	Address_pattern: STRING = "\((%"([^%"]*)%"|NIL) (%"[^%"]*%"|NIL) (%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL)\)"
 
 	Body_pattern: STRING = "(%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) \((((%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) ?)+)\) (%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) (\d+|NIL) ?(\d+|NIL)?"
+
+	Internaldate_pattern: STRING = "(\d?\d)-([A-Z][a-z][a-z])-(\d\d\d\d) (\d?\d):(\d\d):(\d\d) \+\d+"
+			-- Only for INTERNALDATE. For the pattern to parse header's date, look at `Date_pattern'
 
 feature {NONE} -- Implementation
 
@@ -158,11 +166,8 @@ feature {NONE} -- Implementation
 			name: STRING
 			address: STRING
 		do
-			if regex.captured_substring (1) /~ "NIL" then
-				name := regex.captured_substring (2)
-			else
-				create name.make_empty
-			end
+			name := regex.captured_substring (2)
+
 			if regex.captured_substring (4) /~ "NIL" and regex.captured_substring (6) /~ "NIL" then
 				address := regex.captured_substring (5) + "@" + regex.captured_substring (7)
 			else
