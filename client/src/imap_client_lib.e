@@ -957,7 +957,7 @@ feature {NONE} -- Implementation
 			data_items.extend (body_data_item)
 			data_items.extend (envelope_data_item)
 			data_items.extend (flags_data_item)
-			data_items.extend (internaldate_data_item)
+			data_items.extend (internaldate_data_item) -- TODO: Not parsed yet
 			data_items.extend (header_data_item)
 			data_items.extend (size_data_item)
 			data_items.extend (text_data_item)

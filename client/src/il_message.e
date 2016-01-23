@@ -19,6 +19,7 @@ feature {NONE} -- Initialization
 			a_fetch_not_void: a_fetch /= Void
 		local
 			parser: IL_MESSAGE_PARSER
+			number_of_lines: STRING
 		do
 			create parser.make_from_fetch (a_fetch)
 			uid := a_fetch.get_value (uid_data_item).to_integer
@@ -39,6 +40,18 @@ feature {NONE} -- Initialization
 
 			mailbox_name := current_mailbox.name
 
+			body_type := parser.body_field (2)
+			body_subtype := parser.body_field (4)
+			body_id := parser.body_field (12)
+			body_description := parser.body_field (14)
+			body_encoding := parser.body_field (16)
+			number_of_lines := parser.body_field (18)
+			if number_of_lines /~ "NIL" and not number_of_lines.is_empty then
+				body_number_of_lines := number_of_lines.to_integer
+			else
+				body_number_of_lines := -1
+			end
+
 		end
 
 feature -- Access
@@ -51,6 +64,25 @@ feature -- Access
 
 	header_text: STRING
 			-- The raw text of the header
+
+	body_type: STRING
+			-- The type of the body
+			-- This field is not supported for multipart messages
+	body_subtype: STRING
+			-- The subtype of the body
+			-- This field is not supported for multipart messages
+	body_id: STRING
+			-- The content id
+			-- This field is not supported for multipart messages
+	body_description: STRING
+			-- The content description
+			-- This field is not supported for multipart messages
+	body_encoding: STRING
+			-- The content transfer encding
+			-- This field is not supported for multipart messages
+	body_number_of_lines: INTEGER
+			-- The number of lines of the body
+			-- This field is not supported for multipart messages
 
 	body_text: STRING
 			-- The text of the body

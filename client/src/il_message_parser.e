@@ -1,5 +1,5 @@
 note
-	description: "A parser to put the data of a fetch in a structured way"
+	description: "A parser to put the data of a fetch in a message"
 	author: "Basile Maret"
 
 class
@@ -122,6 +122,22 @@ feature -- Basic operaion
 			end
 		end
 
+	body_field (a_substring_number: INTEGER): STRING
+			-- Returns the `a_substring_number'-th part of the BODY
+		require
+			correct_number: a_substring_number >= 1 and a_substring_number <= 18
+		local
+			body: STRING
+		do
+			body := fetch.get_value (body_data_item)
+			regex.compile (Body_pattern)
+			if regex.matches (body) then
+				Result := regex.captured_substring (a_substring_number)
+			else
+				create Result.make_empty
+			end
+		end
+
 feature {NONE} -- Constants
 
 	Envelope_pattern: STRING = "^(%"[^%"]*%"|NIL) (%"[^%"]*%"|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\))+\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\))+\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\))+\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\))+\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\))+\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\))+\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\))+\)|NIL) (%"[^%"]*%"|NIL)$"
@@ -129,6 +145,8 @@ feature {NONE} -- Constants
 	Addresses_pattern: STRING = "^\(((\((%"[^%"]*%" ?|NIL ?)+\))+)\)$"
 
 	Address_pattern: STRING = "\((%"([^%"]*)%"|NIL) (%"[^%"]*%"|NIL) (%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL)\)"
+
+	Body_pattern: STRING = "(%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) \((((%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) ?)+)\) (%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) (\d+|NIL) ?(\d+|NIL)?"
 
 feature {NONE} -- Implementation
 
