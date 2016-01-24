@@ -104,7 +104,7 @@ feature -- Basic Commands
 		note
 			EIS: "name=CAPABILITY", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-6.1.1"
 		require
-			network.is_connected
+			is_connected
 		local
 			parser: IL_PARSER
 			response: IL_SERVER_RESPONSE
@@ -783,7 +783,7 @@ feature -- Basic Operations
 		require
 			action_supported: supports_action (a_action)
 			arguments_not_void: arguments /= Void
-			network.is_connected
+			is_connected
 		do
 			send_command (get_command (a_action), arguments)
 		end
@@ -794,7 +794,7 @@ feature -- Basic Operations
 			tag_not_empty: a_tag /= Void and then not a_tag.is_empty
 			action_supported: supports_action (a_action)
 			arguments_not_void: arguments /= Void
-			network.is_connected
+			is_connected
 		do
 			network.send_command (a_tag, get_command (a_action), arguments)
 		end
@@ -804,7 +804,7 @@ feature -- Basic Operations
 		require
 			a_command_not_empty: a_command /= Void and then not a_command.is_empty
 			arguments_not_void: arguments /= Void
-			network.is_connected
+			is_connected
 		do
 			network.send_command (get_tag, a_command, arguments)
 		end
@@ -814,9 +814,17 @@ feature -- Basic Operations
 		require
 			a_continuation_not_empty: a_continuation /= Void and then not a_continuation.is_empty
 			needs_continuation: needs_continuation
-			network.is_connected
+			is_connected
 		do
 			network.send_command_continuation (a_continuation)
+		end
+
+	send_raw_text (a_text: STRING)
+			-- Send `a_text' to the server without adding any tag
+		require
+			a_text_not_empty: a_text /= Void and then not a_text.is_empty
+		do
+			network.send_raw_command (a_text)
 		end
 
 	get_last_response: IL_SERVER_RESPONSE
@@ -874,6 +882,14 @@ feature -- Basic Operations
 			Result := network.state
 		end
 
+	force_state (a_new_state: NATURAL)
+			-- Force the current state to `a_new_state`
+		require
+			correct_state: a_new_state >= {IL_NETWORK_STATE}.min_state and a_new_state <= {IL_NETWORK_STATE}.max_state
+		do
+			network.set_state (a_new_state)
+		end
+
 	supports_action (action: NATURAL): BOOLEAN
 			-- Returns true if the command `action' is supported in current context
 		do
@@ -889,11 +905,11 @@ feature -- Basic Operations
 			Result := network.needs_continuation
 		end
 
-feature -- Access
-
-	network: IL_NETWORK
 
 feature {NONE} -- Implementation
+
+	network: IL_NETWORK
+			-- The network
 
 	current_tag_number: INTEGER
 			-- The number of the tag of the last message sent
