@@ -772,7 +772,6 @@ feature -- Selected commands
 			EIS: "name=Message Status Update", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-5.2"
 		do
 			noop
-			receive
 			Result := current_mailbox.was_updated
 		end
 
@@ -797,6 +796,7 @@ feature -- Basic Operations
 			is_connected
 		do
 			network.send_command (a_tag, get_command (a_action), arguments)
+			force_receive
 		end
 
 	send_command (a_command: STRING; arguments: LIST [STRING])
@@ -807,6 +807,7 @@ feature -- Basic Operations
 			is_connected
 		do
 			network.send_command (get_tag, a_command, arguments)
+			force_receive
 		end
 
 	send_command_continuation (a_continuation: STRING)
@@ -817,6 +818,7 @@ feature -- Basic Operations
 			is_connected
 		do
 			network.send_command_continuation (a_continuation)
+			force_receive
 		end
 
 	send_raw_text (a_text: STRING)
@@ -825,6 +827,7 @@ feature -- Basic Operations
 			a_text_not_empty: a_text /= Void and then not a_text.is_empty
 		do
 			network.send_raw_command (a_text)
+			force_receive
 		end
 
 	get_last_response: IL_SERVER_RESPONSE
@@ -853,7 +856,7 @@ feature -- Basic Operations
 			Result /= Void
 		end
 
-	receive
+	force_receive
 			-- Read socket for responses
 		do
 			if current_tag_number > 0 then
@@ -870,7 +873,6 @@ feature -- Basic Operations
 	is_connected: BOOLEAN
 			-- Returns true iff the network is connected to the socket
 		do
-			receive
 			Result := network.is_connected
 		end
 
@@ -901,7 +903,6 @@ feature -- Basic Operations
 		note
 			EIS: "name=Command Continuation Request", "protocol=URI", "src=https://tools.ietf.org/html/rfc3501#section-7.5"
 		do
-			receive
 			Result := network.needs_continuation
 		end
 
