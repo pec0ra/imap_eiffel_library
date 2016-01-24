@@ -118,17 +118,29 @@ We have some helpers for IMAP commands like :
 
 `{IMAP_CLIENT_LIB}.check_for_changes` allows to send a NOOP and tell if the server has sent back any change. If it is the case you can then get the changes from `current_mailbox`.
 
-You can fetch all the data from messages with the fetch family of features.
-The main fetch feature is `{IMAP_CLIENT_LIB}.fetch`. It will return for each message in the sequence set a `{IL_FETCH}` which contains the data for each [data item](https://tools.ietf.org/html/rfc3501#page-55) passed as argument.
-The version `fetch_all`, `fetch_fast`, `fetch_full` send a macro instead of a list of data items.
-Each of the fetch feature in the family has a "uid" version which will fetch messages based on uid instead of message sequence number.
+You can fetch data from messages with the fetch family of features. See next section for more details.
 
 `{IMAP_CLIENT_LIB}.close` will close the mailbox and go back to the authenticated state if it is successful.
 
+##### Fetch messages
 
-## Future development
+(Selected state only)
 
-Here is a list of suggestions for amelioration of the library :
-* Add helper for the AUTHENTICATE command.
-* Add helpers to get formated data for the most common cases of the FETCH command.
-* Add parser and/or data structure for fetched dates, ENVELOPE, BODYSTRUCTURE
+The easiest way to fetch messages is with `{IMAP_CLIENT_LIB}.fetch_messages`.
+It will return a hash table mapping the sequence number of the message to an `IL_MESSAGE` object representing the message.
+The class `IL_MESSAGE` has many attributes that allow easy access to message information like :
+* `from_address` : The address (and name) of the sender
+* `to_address` : The addresses of the recipient
+* `subject` : The subject of the message
+* `body_text` : The text of the body
+* `date` : The date of the message
+* `flags` : The flags of the message
+
+and many more.
+
+There is a version which fetches the messages from a set of uids instead of a set of sequence numbers : `{IMAP_CLIENT_LIB}.fetch_messages_uid`.
+
+It is also possible to manually fetch particular [data items](https://tools.ietf.org/html/rfc3501#page-55) with `{IMAP_CLIENT_LIB}.fetch` or to use the fetch macros with `fetch_all`, `fetch_fast` and `fetch_full`.
+
+
+
