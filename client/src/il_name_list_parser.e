@@ -70,17 +70,24 @@ feature -- Basic operations
 feature {NONE} -- Constants
 
 	List: STRING = "LIST"
+			-- LIST command
 
 	Lsub: STRING = "LSUB"
+			-- LSUB command
 
 	Command: STRING
+			-- The command to execute.
 
 	List_item_pattern: STRING
+			-- Represents antagged LIST or LSUB response depending on Command
+			-- Example : * LIST (\HasChildren) "." INBOX
 		once
 			Result := "^\* " + Command + " \((.*)\) %"(.*)%" (.+)%R%N$"
 		end
 
 	Raw_attributes_pattern: STRING = "(\\.+)"
+			-- Represents an attribute of a mailbox
+			-- Example : \HasChildren
 
 feature {NONE} -- Implementation
 

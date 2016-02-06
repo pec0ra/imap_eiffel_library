@@ -148,13 +148,21 @@ feature -- Basic operaion
 feature {NONE} -- Constants
 
 	Envelope_pattern: STRING = "^(%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\)+)\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\)+)\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\)+)\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\)+)\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\)+)\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\)+)\)|NIL) (\((\((%"[^%"]*%" ?|NIL ?)+\)+)\)|NIL) (%"[^%"]*%"|NIL)$"
+			-- Represents the content of an ENVELOPE data item
+			-- Example : "Mon, 16 Nov 2015 11:52:34 +0100" "subject" (("Basile Maret" NIL "basile.maret" "server.ch")) (("Basile Maret" NIL "basile.maret" "server.ch")) (("Basile Maret" NIL "basile.maret" "server.ch")) ((NIL NIL "someone.else" "server.com")) NIL NIL NIL "<5649B572.1070608@server.ch>"
 
 	Address_pattern: STRING = "\((%"([^%"]*)%"|NIL) (%"[^%"]*%"|NIL) (%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL)\)"
+			-- Represents an address in an envelope
+			-- Example : ("Basile Maret" NIL "basile.maret" "server.ch")
 
 	Body_pattern: STRING = "(%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) \((((%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) ?)+)\) (%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) (%"([^%"]*)%"|NIL) (\d+|NIL) ?(\d+|NIL)?"
+			-- Represents the BODY data item of a single part message
+			-- Example : "text" "plain" ("charset" "utf-8" "format" "flowed") NIL NIL "7bit" 6 1
 
 	Internaldate_pattern: STRING = "(\d?\d)-([A-Z][a-z][a-z])-(\d\d\d\d) (\d?\d):(\d\d):(\d\d)"
 			-- Only for INTERNALDATE. For the pattern to parse header's date, look at `Date_pattern'
+			-- Represents a date of the INTERNALDATE data item
+			-- Example : 16-Nov-2015 11:52:34 +0100
 
 feature {NONE} -- Implementation
 

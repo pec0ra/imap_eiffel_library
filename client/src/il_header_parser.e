@@ -93,10 +93,20 @@ feature -- Basic operation
 feature {NONE} -- Constants
 
 	From_pattern: STRING = "(from|From): (%"?)(.*)\2\ <(.+@.+\..+)>"
+			-- Represents a "From" field in a header
+			-- Example : From: Basile Maret <basile.maret@server.ch>
+
 	To_pattern: STRING = "(to|To): (%"?)(.*)\2\ ?<(.+@.+\..+)>"
+			-- Represents a "To" field in a header
+			-- Example : To: Basile Maret <basile.maret@server.ch>
+
 	Subject_pattern: STRING = "(subject|Subject): (.*)%R%N"
+			-- Represents a "Subject" field in a header
+			-- Example : Subject: test
 
 	Field_pattern: STRING = ": (.*)%R%N"
+			-- Represents a field in a header
+			-- Example : Content-Type: text/plain; charset=utf-8; format=flowed
 
 note
 	copyright: "2015-2016, Maret Basile, Eiffel Software"

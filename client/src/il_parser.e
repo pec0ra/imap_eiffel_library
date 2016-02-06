@@ -189,38 +189,77 @@ feature -- Basic operations
 feature {NONE} -- Constants
 
 	Connection_ok_pattern: STRING = "^\* OK (.*)$"
+			-- Represents the first message sent by the server when opening a connection
+			-- Example : * OK The Microsoft Exchange IMAP4 service is ready.
 
 	Bye_pattern: STRING = "^\* BYE (.*)%R%N$"
+			-- Represents a BYE response
+			-- Example : * BYE Logging out
 
 	Capability_pattern: STRING = "(([A-Z]|=|rev|\d|\+|-)+)"
+			-- Represent an item of a CAPABILITY response
+			-- Example : IMAP4rev1
+			-- Example : AUTH=PLAIN
+			-- Could be matched in : * CAPABILITY IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE AUTH=PLAIN AUTH=CRAM-MD5
 
 	Capabilities_pattern: STRING = "^\* ([A-Z]|=|rev|\d|\+|-| )*IMAP4rev1([A-Z]|=|rev|\d|\+|-| )*%R%N$"
+			-- Represent a CAPABILITY response
+			-- Example : * CAPABILITY IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE AUTH=PLAIN AUTH=CRAM-MD5
 
 	Untagged_response_pattern: STRING = "^\* (.*)%R%N$"
+			-- Represents an untagged response
+			-- Example : * 3 EXISTS
+			-- Example : * OK [UIDNEXT 17] Predicted next UID
 
 	Tagged_response_pattern: STRING = "^il\d+ .*%R%N$"
+			-- Represents a tagged response
+			-- Example : il2 OK Logged in
 
 	Tag_pattern: STRING = "^(\*|il\d+|\+) "
+			-- Represents the first part of a response. It is either a * (untagged), a tag (tagged) or a + (continuation request)
 
 	Integer_from_tag_pattern: STRING = "^il(\d+)$"
+			-- Represents a tag and captures the tag number
 
 	Status_pattern: STRING = "^il\d+ (OK|NO|BAD)"
+			-- Represents the beginning of a tagged response and captures its status (OK, NO or BAD)
+			-- Match example : il5 OK
+			-- Could be matched in : il5 OK Status completed.
 
 	Status_data_response_pattern: STRING = "^\* STATUS .* \((.+)\)%R%N$"
+			-- Represents an untagged STATUS response
+			-- Example : * STATUS INBOX (RECENT 2)
+
 
 	Status_data_pattern: STRING = "(MESSAGES|RECENT|UIDNEXT|UIDVALIDITY|UNSEEN) ([0-9]+) ?"
+			-- Repesents one of the data item of a STATUS response and its value
+			-- Match example : RECENT 2
+			-- Could be matched in : * STATUS INBOX (RECENT 2 MESSAGES 243)
 
 	Search_result_pattern: STRING = "^\* SEARCH ([0-9 ]+)%R%N$"
+			-- Represents a SEARCH untagged response and captures the uids
+			-- Example : * SEARCH 1 2 3
 
 	Integer_pattern: STRING = "\d+"
+			-- Represents an integer
 
 	Response_code_pattern: STRING = "^il\d+ (OK|NO|BAD) \[([A-Z]+)].*%R%N$"
+			-- Matches a tagged response and captures the response code
+			-- Example : il6 OK [READ-WRITE] Select completed (0.000 secs).
+			-- Example would cature : READ-WRITE
 
 	Information_message_pattern: STRING = "^il\d+ (OK|NO|BAD) (\[.+] )?(.*)%R%N$"
+			-- Matches a tagged response and captures the information message. This is an optional human readable message at the end of the response
+			-- Example : il6 OK [READ-WRITE] Select completed (0.000 secs).
+			-- Example would capture : Select completed (0.000 secs).
 
 	Date_pattern: STRING = ".*[A-Za-z]+, (\d?\d) ([A-Z][a-z][a-z]) (\d\d\d\d) (\d?\d):(\d\d):(\d\d)"
+			-- Represents a date as present in the header field "Date"
+			-- Example : Mon, 16 Nov 2015 11:52:34 +0100
 
 	First_line_fetch_pattern: STRING = "^\* (\d+) FETCH \([^{]*\)?({(\d+)})?%R%N$"
+			-- Represents the first line of a multiline untagged FETCH response
+			-- Example : * 3 FETCH (BODY[HEADER] {553}
 
 
 feature {NONE} -- Constants

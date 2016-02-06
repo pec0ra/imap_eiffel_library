@@ -159,26 +159,49 @@ feature -- Basic Operations
 feature {NONE} -- Constants
 
 	Tagged_mailbox_response_pattern: STRING = "^il\d+ OK \[(READ-ONLY|READ-WRITE)].*%R%N$"
+			-- Represents the tagged response of a SELECT or EXAMINE command
+			-- Example : il2 OK [READ-WRITE] Select completed (0.000 secs).
 
 	Flag_response_pattern: STRING = "^\* FLAGS \((.+)\)%R%N$"
+			-- Represents a FLAGS untagged response
+			-- Example : * FLAGS (\Answered \Flagged \Deleted \Seen \Draft NonJunk)
 
 	Flag_pattern: STRING = "([^ ]+)"
+			-- Represents a single flag
+			-- Match example : \Answered
+			-- Could be matched in : * FLAGS (\Answered \Flagged \Deleted \Seen \Draft NonJunk)
 
 	Exists_pattern: STRING = "^\* ([0-9]+) EXISTS%R%N$"
+			-- Represents an untagged EXISTS response and captures the number
+			-- Example : * 243 EXISTS
 
 	Recent_pattern: STRING = "^\* ([0-9]+) RECENT%R%N$"
+			-- Represents an untagged RECENT response and captures the number
+			-- Example : * 1 RECENT
 
 	Expunge_pattern: STRING = "^\* ([0-9]+) EXPUNGE%R%N$"
+			-- Represents an untagged EXPUNGE response and captures the number
+			-- Example : * 1 EXPUNGE
 
 	Unseen_pattern: STRING = "^\* OK \[UNSEEN ([0-9]+)].*%R%N$"
+			-- Represents an untagged response with UNSEEN data and captures the sequence number
+			-- Example : * OK [UNSEEN 12] Message 12 is first unseen
 
 	Permanent_flags_pattern: STRING = "^\* OK \[PERMANENTFLAGS \((.+)\)].*%R%N$"
+			-- Represents an untagged response with PERMANENTFLAGS data and captures the flags
+			-- Example : * OK [PERMANENTFLAGS (\Answered \Flagged \Deleted \Seen \Draft NonJunk \*)] Flags permitted.
 
 	Uid_next_pattern: STRING = "^\* OK \[UIDNEXT ([0-9]+)].*%R%N$"
+			-- Represents an untagged response with UIDNEXT data and captures the next uid
+			-- Example : * OK [UIDNEXT 1564] Predicted next UID
 
 	Uid_validity_pattern: STRING = "^\* OK \[UIDVALIDITY ([0-9]+)].*%R%N$"
+			-- Represents an untagged response with UIDVALIDITY data and captures the number
+			-- Example : * OK [UIDVALIDITY 1447670969] UIDs valid
 
 	Fetch_pattern: STRING = "^\* ([0-9]+) FETCH \(FLAGS \((.+)\)\)%R%N$"
+			-- Represents an untagged FETCH response with flags as a status update
+			-- Example : * 3 FETCH (FLAGS (\Seen \Draft))
 
 feature {NONE} -- Implementation
 

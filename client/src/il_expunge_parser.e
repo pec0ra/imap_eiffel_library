@@ -51,6 +51,8 @@ feature -- Basic Operations
 feature {NONE} -- Constants
 
 	Expunge_pattern: STRING = "^\* ([0-9]+) EXPUNGE%R%N$"
+			-- Represents an untagged EXPUNGE response and captures the sequence number
+			-- Example : * 44 EXPUNGE
 
 feature {NONE} -- Implementation
 
